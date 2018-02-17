@@ -9,9 +9,12 @@ class App extends Component {
     super(props);
     this.state = {
       username: '',
+      usernameRW: false,
     };
   }
-
+  handleUsername(event){
+    this.setState({username: event.target.value});
+  }
   render() {
     return (
       <div className="App">
@@ -26,7 +29,7 @@ class App extends Component {
         <section className="App-Settings">
           <p>
             <label htmlFor="name">User name: </label>
-            <input value={this.state.username} onChange={() => this.setState({name:this.value})}  id="name" />
+            <input value={this.state.username} onChange={this.handleUsername.bind(this)} defaultValue="User Name" id="username" />
           </p>
         </section>
         <Game />
