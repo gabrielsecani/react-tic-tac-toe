@@ -36,8 +36,11 @@ ol, ul {
 }
 
 .game {
+  align-content: space-between;
   display: flex;
   flex-direction: row;
+  margin: auto;
+  width: max-content;
 }
 
 .game-info {
@@ -45,5 +48,4 @@ ol, ul {
 }
 
 .game-board {
-  margin: auto;
 }
