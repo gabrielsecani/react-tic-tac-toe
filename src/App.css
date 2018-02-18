@@ -27,10 +27,6 @@
   to { transform: rotate(360deg); }
 }
 
-section{
-  /* border: 1px solid red; */
-}
-
 section {
   margin: auto;
   width: 320px;
