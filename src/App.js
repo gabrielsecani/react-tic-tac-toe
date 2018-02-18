@@ -10,17 +10,26 @@ class App extends Component {
     this.state = {
       username: '',
       usernameRW: false,
+      boardSize: 3,
     };
   }
   handleUsername(event){
-    this.setState({username: event.target.value});
+    if(!this.state.usernameRW)
+      this.setState({username: event.target.value});
+  }
+  handleBoardSizeChange(event){
+    console.log(this, event);
+    this.setState({boardSize: event.currentTarget.value})
   }
   render() {
+    const optionsBoardSize = Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
+      <option key={number.toString()} value={number}>{number}</option>
+    ));
     return (
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to Tic Tac Toe</h1>
+          <h1 className="App-title">Welcome to Tic Tac Toe App</h1>
         </header>
         <p className="App-intro">
           To get started, set your name and click start, 
@@ -29,11 +38,15 @@ class App extends Component {
         <section className="App-Settings">
           <p>
             <label htmlFor="name">User name: </label>
-            <input value={this.state.username} onChange={this.handleUsername.bind(this)} id="username" />
+            <input value={this.state.username} onChange={this.handleUsername.bind(this)} name="username" />
+          </p>
+          <p>
+            <label htmlFor="boardsize">Select board size: </label>
+            <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{optionsBoardSize}</select>
           </p>
         </section>
         <section className="App-Game">
-        <Game />
+        <Game boardSize={this.state.boardSize}/>
         </section>
         <section className="App-Rules">
           <p>The rules to win this game is one of above:</p>

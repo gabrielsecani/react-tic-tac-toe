@@ -10,7 +10,6 @@ class Game extends React.Component {
       history: [{
         squares: Array(this.props.boardSize).fill(null),
       }],
-      boardSize: 5,
       stepNumber: 0,
       winnerLines: null,
     };
@@ -61,7 +60,7 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    if (this.calculateWinner(squares, this.state.boardSize) || squares[i]) {
+    if (this.calculateWinner(squares, this.props.boardSize) || squares[i]) {
       return;
     }
     squares[i] = this.nextPlayerSymbol();
@@ -80,9 +79,10 @@ class Game extends React.Component {
   }
 
   render() {
+    if(this.props.boardSize<3) return (<br/>);
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winner = this.calculateWinner(current.squares, this.state.boardSize);
+    const winner = this.calculateWinner(current.squares, this.props.boardSize);
 
     let status;
     if (winner) {
@@ -105,7 +105,7 @@ class Game extends React.Component {
     return (
       <div className="game">
         <div className="game-board">
-          <Board boardSize={this.state.boardSize}
+          <Board boardSize={this.props.boardSize}
             squares={current.squares}
             onClick={(i) => this.handleClick(i)}
             />

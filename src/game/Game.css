@@ -36,10 +36,8 @@ ol, ul {
 }
 
 .game {
-  align-content: space-between;
-  display: flex;
-  flex-direction: row;
-  margin: auto;
+  /* align-content: space-between; */
+  /* margin: auto; */
   width: max-content;
 }
 

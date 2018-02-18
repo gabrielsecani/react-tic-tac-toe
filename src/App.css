@@ -21,6 +21,20 @@
 .App-intro {
   font-size: large;
 }
+.App-Settings {
+  display: flex;
+  flex-direction: column;
+  align-content: space-between;
+}
+
+.App-Settings p label{
+  width: 230px;
+}
+
+.App-Settings p *{
+  width: 120px;
+  align-self: flex-end;
+}
 
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
