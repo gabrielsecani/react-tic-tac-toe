@@ -29,10 +29,20 @@ class App extends Component {
         <section className="App-Settings">
           <p>
             <label htmlFor="name">User name: </label>
-            <input value={this.state.username} onChange={this.handleUsername.bind(this)} defaultValue="User Name" id="username" />
+            <input value={this.state.username} onChange={this.handleUsername.bind(this)} id="username" />
           </p>
         </section>
+        <section className="App-Game">
         <Game />
+        </section>
+        <section className="App-Rules">
+          <p>The rules to win this game is one of above:</p>
+          <ol>
+            <li>fulfill one entire row</li>
+            <li>fulfill one entire column</li>
+            <li>fulfill one diagonal line</li>
+          </ol>
+        </section>
       </div>
     );
   }
