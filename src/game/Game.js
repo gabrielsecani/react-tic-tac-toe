@@ -81,75 +81,28 @@ class Game extends React.Component {
   }
 }
 
-// function calculateWinner(squares) {
-//   const lines = [
-//     [0, 1, 2],
-//     [3, 4, 5],
-//     [6, 7, 8],
-//     [0, 3, 6],
-//     [1, 4, 7],
-//     [2, 5, 8],
-//     [0, 4, 8],
-//     [2, 4, 6],
-//   ];
-//   for (let i = 0; i < lines.length; i++) {
-//     const [a, b, c] = lines[i];
-//     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-//       return squares[a];
-//     }
-//   }
-//   return null;
-// }
-
 function calculateWinner(squares, size) {
   let lines = [];
   let col = [];
-  // linhas
+  let lin = [];
+  // lines & columns
   for (let i=0; i < size; i++){
     for (let j=0; j < size; j++){
       col = [...col, [(i*size)+j]];
+      lin = [...lin, [(j*size)+i]];
     }
-    lines = [...lines, col];
-      col = [];    
-  }
-  //colunas
-  for (let i=0; i < size; i++){
-    for (let j=0; j < size; j++){
-      col = [...col, [(j*size)+i]];
-    }
-    lines = [...lines, col];
-      col = [];    
+    lines = [...lines, col, lin];
+    col = [];
+    lin = [];
   }
   //diagonal left->right
-  for (let i=0; i < size; i++){
-      col = [...col, [(i*size)+i]];
-  }
-  lines = [...lines, col];
-  col=[]
   //diagonal right->left
   for (let i=0; i < size; i++){
-      col = [...col, [(i*size)+(size-i)-1]];
+      col = [...col, [(i*size)+i]];
+      lin = [...lin, [(i*size)+(size-i)-1]];
   }
-  console.log('cols',...col)
-  lines = [...lines, col];
-  col=[]
-  // console.log('lines',lines);
-  for (let i = 0; i < lines.length; i++) {
-    // console.log(i);
-    const t=squares[lines[i][0]];// first value for test
-    // console.log("lines["+i+"]: ", lines[i], t);
-    const ret = ( lines[i].reduce((v,a)=>{
-      console.log('v:',v, 'a:',a, 't:',t, 's',squares[a]); 
-      return (squares[a] && (v && (t===squares[a]))
-    )}, true) );
-    console.log('result:',ret);
-    if(ret){
-      console.log('winner found: ', t, i, lines[i]);
-      console.log('squares',squares);
-      return t;
-    }
-  }
-  return null;
+  lines = [...lines, col, lin];
+  return lines.some(line=>line.map(a=>squares[a]).every((c,i,a)=>(c && a[0]===c)));
 }
 
 export default Game;
