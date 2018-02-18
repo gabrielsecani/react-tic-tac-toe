@@ -38,7 +38,13 @@ class Game extends React.Component {
           lin = [...lin, [(i*size)+(size-i)-1]];
       }
       lines = [...lines, col, lin];
-      this.setState({winnerLines: lines});
+      this.setState({
+        history: [{
+          squares: Array(this.props.boardSize).fill(null),
+        }],
+        stepNumber: 0,
+        winnerLines: lines,
+      });
     }
     let winner=null;
     lines.some(line=>{
@@ -97,7 +103,7 @@ class Game extends React.Component {
         'Go to game start';
       return (
         <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          <button  onClick={() => this.jumpTo(move)}>{step}{desc}</button>
         </li>
       );
     });

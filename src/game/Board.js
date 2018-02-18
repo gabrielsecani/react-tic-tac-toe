@@ -39,10 +39,9 @@ class Board extends React.Component {
   }
    
   render() {
-    const size=this.props.boardSize || 3;
     return (
       <div>
-        {this.renderRows(size)}
+        {this.renderRows(this.props.boardSize || 3)}
       </div>
     );
   }
