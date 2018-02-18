@@ -12,7 +12,45 @@ class Game extends React.Component {
       }],
       boardSize: 5,
       stepNumber: 0,
+      winnerLines: null,
     };
+  }
+
+  calculateWinner(squares, size) {
+    let lines = this.state.winnerLines;
+    if (!lines || lines.length !== (size*2+2)){
+      lines = [];
+      let col = [];
+      let lin = [];
+      // lines & columns
+      for (let i=0; i < size; i++){
+        for (let j=0; j < size; j++){
+          col = [...col, [(i*size)+j]];
+          lin = [...lin, [(j*size)+i]];
+        }
+        lines = [...lines, col, lin];
+        col = [];
+        lin = [];
+      }
+      //diagonal left->right
+      //diagonal right->left
+      for (let i=0; i < size; i++){
+          col = [...col, [(i*size)+i]];
+          lin = [...lin, [(i*size)+(size-i)-1]];
+      }
+      lines = [...lines, col, lin];
+      this.setState({winnerLines: lines});
+    }
+    let winner=null;
+    lines.some(line=>{
+      if(line.map(a=>squares[a]).every((current,i,arr)=>(current && arr[0]===current))){
+        winner = squares[line[0]];
+        return true;
+      } else {
+        return false;
+      }
+    });
+    return winner;
   }
 
   nextPlayerSymbol() {
@@ -22,8 +60,8 @@ class Game extends React.Component {
   handleClick(i) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
-    const squares = current.squares.slice();//copy array to do not mutate 
-    if (calculateWinner(squares, this.state.boardSize) || squares[i]) {
+    const squares = current.squares.slice();
+    if (this.calculateWinner(squares, this.state.boardSize) || squares[i]) {
       return;
     }
     squares[i] = this.nextPlayerSymbol();
@@ -44,7 +82,7 @@ class Game extends React.Component {
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares, this.state.boardSize);
+    const winner = this.calculateWinner(current.squares, this.state.boardSize);
 
     let status;
     if (winner) {
@@ -81,33 +119,5 @@ class Game extends React.Component {
   }
 }
 
-function calculateWinner(squares, size) {
-  let lines = [];
-  let col = [];
-  let lin = [];
-  // lines & columns
-  for (let i=0; i < size; i++){
-    for (let j=0; j < size; j++){
-      col = [...col, [(i*size)+j]];
-      lin = [...lin, [(j*size)+i]];
-    }
-    lines = [...lines, col, lin];
-    col = [];
-    lin = [];
-  }
-  //diagonal left->right
-  //diagonal right->left
-  for (let i=0; i < size; i++){
-      col = [...col, [(i*size)+i]];
-      lin = [...lin, [(i*size)+(size-i)-1]];
-  }
-  lines = [...lines, col, lin];
-  let winner=null;
-  console.log(lines.forEach(line=>{
-    if(line.map(a=>squares[a]).every((current,i,arr)=>(current && arr[0]===current)))
-      winner = squares[line[0]];
-  }));
-  return winner;
-}
 
 export default Game;
