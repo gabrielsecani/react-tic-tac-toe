@@ -102,7 +102,12 @@ function calculateWinner(squares, size) {
       lin = [...lin, [(i*size)+(size-i)-1]];
   }
   lines = [...lines, col, lin];
-  return lines.some(line=>line.map(a=>squares[a]).every((c,i,a)=>(c && a[0]===c)));
+  let winner=null;
+  console.log(lines.forEach(line=>{
+    if(line.map(a=>squares[a]).every((current,i,arr)=>(current && arr[0]===current)))
+      winner = squares[line[0]];
+  }));
+  return winner;
 }
 
 export default Game;
