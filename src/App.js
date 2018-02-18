@@ -1,8 +1,28 @@
 import React, { Component } from 'react';
 // import ReactDOM from 'react-dom';
 import logo from './logo.png';
-import Game from './game/Game';
+import Loadable from 'react-loadable';
 import './App.css';
+
+function LoadingComponent(props) {
+  if (props.error) {
+    // When the loader has errored
+    return <div>Error!</div>;
+  } else if (props.timedOut) {
+    // When the loader has taken longer than the timeout
+    return <div>Taking a long time...</div>;
+  } else if (props.pastDelay) {
+    // When the loader has taken longer than the delay
+    return <div>Loading...</div>;
+  } else {
+    // When the loader has just started
+    return null;
+  }
+}
+const LoadableGame = Loadable({
+  loader: () => import('./game/Game'),
+  loading: LoadingComponent,
+});
 
 class App extends Component {
   constructor(props) {
@@ -22,9 +42,7 @@ class App extends Component {
     this.setState({boardSize: event.currentTarget.value})
   }
   render() {
-    const optionsBoardSize = Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
-      <option key={number.toString()} value={number}>{number}</option>
-    ));
+    
     return (
       <div className="App">
         <header className="App-header">
@@ -42,11 +60,14 @@ class App extends Component {
           </p>
           <p>
             <label htmlFor="boardsize">Select board size: </label>
-            <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{optionsBoardSize}</select>
+            <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>
+            {Array(4).fill(3).map((v,i)=>v+i*2)
+              .map(number=>(<option key={number.toString()} value={number}>{number}</option>))}
+            </select>
           </p>
         </section>
         <section className="App-Game">
-        <Game boardSize={this.state.boardSize}/>
+        <LoadableGame boardSize={this.state.boardSize}/>
         </section>
         <section className="App-Rules">
           <p>The rules to win this game is one of above:</p>
