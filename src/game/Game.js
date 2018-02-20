@@ -13,6 +13,10 @@ class Game extends React.Component {
       stepNumber: 0,
       winnerLines: null,
     };
+    this.options = {
+      showHistory: true,
+    };
+    Object.assign(this.options, this.props, this.props.options);
   }
 
   calculateWinner(squares, size) {
@@ -38,13 +42,14 @@ class Game extends React.Component {
           lin = [...lin, [(i*size)+(size-i)-1]];
       }
       lines = [...lines, col, lin];
+      setTimeout(()=>
       this.setState({
         history: [{
           squares: Array(this.props.boardSize).fill(null),
         }],
         stepNumber: 0,
         winnerLines: lines,
-      });
+      }), 1);
     }
     let winner=null;
     lines.some(line=>{
@@ -103,7 +108,7 @@ class Game extends React.Component {
         'Go to game start';
       return (
         <li key={move}>
-          <button  onClick={() => this.jumpTo(move)}>{step}{desc}</button>
+          <button onClick={() => this.jumpTo(move)}>{desc}</button>
         </li>
       );
     });
@@ -118,7 +123,7 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
-          <ol>{moves}</ol>
+          {this.options.showHistory?(<ol>{moves}</ol>):""}
         </div>
       </div>
     );
