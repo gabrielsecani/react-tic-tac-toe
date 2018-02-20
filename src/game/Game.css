@@ -37,10 +37,17 @@ ol, ul {
 
 .game {
   /* align-content: space-between; */
-  /* margin: auto; */
-  width: max-content;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* width: max-content; */
 }
 
 .game-info {
   margin-left: 20px;
+}
+.game-info,
+.game-board {
+  /* margin: auto; */
 }
