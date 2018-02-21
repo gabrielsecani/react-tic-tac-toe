@@ -22,9 +22,6 @@ class App extends Component {
     this.setState({boardSize: event.currentTarget.value})
   }
   render() {
-    const optionsBoardSize = Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
-      <option key={number.toString()} value={number}>{number}</option>
-    ));
     return (
       <div className="App">
         <header className="App-header">
@@ -42,7 +39,10 @@ class App extends Component {
           </p>
           <p>
             <label htmlFor="boardsize">Select board size: </label>
-            <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{optionsBoardSize}</select>
+            <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
+              Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
+              <option key={number.toString()} value={number}>{number}</option>
+            ))}</select>
           </p>
         </section>
         <section className="App-Game">
