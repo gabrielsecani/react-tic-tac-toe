@@ -22,6 +22,24 @@ class Board extends React.Component {
     );
   }
    
+  // renderColumns(rowidx, size) {
+  //   let ret=[];
+  //   for(let i=0; i<size; i++){
+  //     ret = [...ret, this.renderSquare(i+(rowidx*size))];
+  //   }
+  //   return (ret);
+  // }
+  
+  // renderBoard(size) {
+  //   let ret=[];
+  //   for(let i=0; i<size; i++){
+  //     ret = [...ret, (<div className="board-row" key={'r'+i}>
+  //          {this.renderColumns(i, size)}
+  //        </div>)];
+  //   }
+  //   return ret;
+  // }
+   
   render() {
     const size = parseInt(this.props.boardSize || 3, 10);
     const arr = [...Array(size).fill(0)];
