@@ -43,12 +43,12 @@ class Game extends React.Component {
       }
       lines = [...lines, col, lin];
       setTimeout(()=>
-      this.setState({
-        history: [{
-          squares: Array(this.props.boardSize).fill(null),
-        }],
-        stepNumber: 0,
-        winnerLines: lines,
+        this.setState({
+          history: [{
+            squares: Array(this.props.boardSize).fill(null),
+          }],
+          stepNumber: 0,
+          winnerLines: lines,
       }), 1);
     }
     let winner=null;
@@ -129,6 +129,5 @@ class Game extends React.Component {
     );
   }
 }
-
 
 export default Game;

@@ -43,5 +43,7 @@
 
 section {
   margin: auto;
+}
+.App-Rules{
   width: 320px;
 }

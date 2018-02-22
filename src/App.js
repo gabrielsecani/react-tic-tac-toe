@@ -33,14 +33,17 @@ class App extends Component {
       boardSize: 3,
     };
   }
+
   handleUsername(event){
     if(!this.state.usernameRW)
       this.setState({username: event.target.value});
   }
+
   handleBoardSizeChange(event){
     console.log(this, event);
-    this.setState({boardSize: event.currentTarget.value})
+    this.setState({boardSize: parseInt(event.currentTarget.value, 10)})
   }
+
   render() {
     return (
       <div className="App">
@@ -61,7 +64,7 @@ class App extends Component {
             <label htmlFor="boardsize">Select board size: </label>
             <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
               Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
-              <option key={number.toString()} value={number}>{number}</option>
+                <option key={number.toString()} value={number}>{number}</option>
             ))}</select>
           </p>
         </section>
