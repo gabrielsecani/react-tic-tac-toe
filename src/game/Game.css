@@ -47,7 +47,8 @@ ol, ul {
 .game-info {
   margin-left: 20px;
 }
+
 .game-info,
 .game-board {
-  /* margin: auto; */
+  margin: auto;
 }
