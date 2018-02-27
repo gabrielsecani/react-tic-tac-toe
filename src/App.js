@@ -4,7 +4,8 @@ import logo from './logo.png';
 import Loadable from 'react-loadable';
 import './App.css';
 import LoadingComponent from './LoadingComponent';
-import SignInScreen from './Fire';
+import SignInScreen from './SignInScreen';
+import { firebaseConfig, firebaseApp } from './Fire';
 
 const LoadableGame = Loadable({
   loader: () => import('./game/Game'),
@@ -44,7 +45,7 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to Tic Tac Toe App</h1>
         <section className="App-login">
-          <SignInScreen onAuthStateChanged={this.handleAuthStateChange.bind(this)}/>
+          <SignInScreen firebaseApp={firebaseApp} onAuthStateChanged={this.handleAuthStateChange.bind(this)}/>
         </section>
         </header>
         <section className="App-intro">
