@@ -54,7 +54,7 @@ class Game extends React.Component {
       //   });
       // }, 10000);
     }
-    size*size
+    
     var empate=
       (squares.length === size*size && size*size === this.stepNumber);
     if(empate)

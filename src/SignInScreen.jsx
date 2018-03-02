@@ -3,14 +3,14 @@ import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
-class SignInScreen extends React.Component {
+class SignInScreen extends Component {
   constructor(props) {
     super(props);
-    this.firebaseApp = this.props.firebaseApp;
-    // if (!this.firebaseApp) 
-    // throw DOMException("asda");
+    if(!this.props.firebaseApp && !this.props.firebaseAuth){
+      throw new DOMException('SignInScreen: You need to set at least one of firebaseApp or firebaseAuth properties.');
+    }
   }
-
+  
   // Configure FirebaseUI.
   uiConfig = {
     // Popup signin flow rather than redirect flow.
@@ -34,7 +34,10 @@ class SignInScreen extends React.Component {
   };
   
   componentDidMount() {
-    this.firebaseApp.auth().onAuthStateChanged((user) => {
+    this.firebaseApp = this.props.firebaseApp;
+    this.firebaseAuth = this.props.firebaseAuth || this.firebaseApp.auth();
+    if(!!this.firebaseApp||this.firebaseApp!==this.firebaseAuth.app) this.firebaseApp = this.firebaseAuth.app;
+    this.firebaseAuth.onAuthStateChanged((user) => {
       this.setState({signedIn: !!user});
     });
   }
@@ -45,14 +48,14 @@ class SignInScreen extends React.Component {
     <div>
         {this.state.signedIn && 
           <div>
-            Hello {this.firebaseApp.auth().currentUser.displayName}. You are signed In!
-            <a className="button" onClick={() => this.firebaseApp.auth().signOut()}>Sign-out</a>
+            Hello {this.firebaseAuth.currentUser.displayName}. You are signed In!
+            <a className="button" onClick={() => this.firebaseAuth.signOut()}>Sign-out</a>
           </div>
         }
         {!this.state.signedIn && this.firebaseApp &&
           <div>
             <p>Please sign-in:</p>
-            <StyledFirebaseAuth uiConfig={this.uiConfig} firebaseAuth={firebase.auth()}/>
+            <StyledFirebaseAuth uiConfig={this.uiConfig} firebaseAuth={this.firebaseAuth}/>
           </div>
         }
     </div>

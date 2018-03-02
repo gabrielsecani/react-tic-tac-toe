@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 // import ReactDOM from 'react-dom';
 import logo from './logo.png';
-import Loadable from 'react-loadable';
 import './App.css';
+
+
+import Loadable from 'react-loadable';
 import LoadingComponent from './LoadingComponent';
 import SignInScreen from './SignInScreen';
-import { firebaseConfig, firebaseApp } from './Fire';
+import { firebaseAuth } from './Fire';
 
 const LoadableGame = Loadable({
   loader: () => import('./game/Game'),
@@ -38,38 +40,51 @@ class App extends Component {
     // }
   }
 
+  renderNoAuth(){
+    return (<div>
+      <section className="App-intro">
+      Please have a sit with login and have fun!
+      </section>
+    </div>);
+  }
+
+  renderAuth(){
+    return (<div>
+        <section className="App-intro">
+      <div>
+        To get started, search for a match or
+        <br/>just start one and have fun.
+      </div>
+      </section>
+      <section className="App-Settings">
+        {/* <p>
+          <label htmlFor="name">User name: </label>
+          <input value={this.state.username} onChange={this.handleUsername.bind(this)} name="username" />
+        </p> */}
+        <p>
+          <label htmlFor="boardsize">Select board size: </label>
+          <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
+            Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
+              <option key={number.toString()} value={number}>{number}</option>
+          ))}</select>
+        </p>
+      </section>
+      <section className="App-Game">
+        <LoadableGame boardSize={this.state.boardSize}/>
+      </section>
+    </div>);
+  }
+
   render() {
-    //console.log(this, firebase.auth().currentUser.displayName);
     return (<div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to Tic Tac Toe App</h1>
         <section className="App-login">
-          <SignInScreen firebaseApp={firebaseApp} onAuthStateChanged={this.handleAuthStateChange.bind(this)}/>
+          <SignInScreen firebaseAuth={firebaseAuth} onAuthStateChanged={this.handleAuthStateChange.bind(this)}/>
         </section>
         </header>
-        <section className="App-intro">
-        <div>
-          To get started, search for a match or
-          <br/>just start one and have fun.
-        </div>
-        </section>
-        <section className="App-Settings">
-          {/* <p>
-            <label htmlFor="name">User name: </label>
-            <input value={this.state.username} onChange={this.handleUsername.bind(this)} name="username" />
-          </p> */}
-          <p>
-            <label htmlFor="boardsize">Select board size: </label>
-            <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
-              Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
-                <option key={number.toString()} value={number}>{number}</option>
-            ))}</select>
-          </p>
-        </section>
-        <section className="App-Game">
-          <LoadableGame boardSize={this.state.boardSize}/>
-        </section>
+        {(!!firebaseAuth.currentUser)? this.renderAuth() : this.renderNoAuth() }
         <section className="App-Rules">
           <p>The rules to win this game is one of above:</p>
           <ol>
