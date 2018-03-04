@@ -5,12 +5,12 @@ import './App.css';
 
 
 import Loadable from 'react-loadable';
-import LoadingComponent from './LoadingComponent';
-import SignInScreen from './SignInScreen';
-import { firebaseAuth } from './Fire';
+import LoadingComponent from './components/LoadingComponent';
+import SignInScreen from './components/SignInScreen';
+import { firebaseAuth } from './components/Fire';
 
 const LoadableGame = Loadable({
-  loader: () => import('./game/Game'),
+  loader: () => import('./components/Game/Game'),
   loading: LoadingComponent,
 });
 
@@ -52,8 +52,8 @@ class App extends Component {
     return (<div>
         <section className="App-intro">
       <div>
-        To get started, search for a match or
-        <br/>just start one and have fun.
+        To get start, search for a match or then
+        <br/> start one and have fun.
       </div>
       </section>
       <section className="App-Settings">
@@ -84,7 +84,7 @@ class App extends Component {
           <SignInScreen firebaseAuth={firebaseAuth} onAuthStateChanged={this.handleAuthStateChange.bind(this)}/>
         </section>
         </header>
-        {(!!firebaseAuth.currentUser)? this.renderAuth() : this.renderNoAuth() }
+        {(!!!firebaseAuth.currentUser)? this.renderAuth() : this.renderNoAuth() }
         <section className="App-Rules">
           <p>The rules to win this game is one of above:</p>
           <ol>
