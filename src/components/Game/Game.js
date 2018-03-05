@@ -97,6 +97,11 @@ class Game extends React.Component {
     });
   }
 
+  handleBoardSizeChange(event) {
+    // console.log(this, event);
+    this.setState({boardSize: parseInt(event.currentTarget.value, 10)})
+  }
+
   render() {
     if(this.props.boardSize<3) return (<br/>);
     const history = this.state.history;
@@ -123,17 +128,41 @@ class Game extends React.Component {
 
     return (
       <div className="game">
-        <div className="game-board">
-          <Board boardSize={this.props.boardSize}
-            squares={current.squares}
-            onClick={(i) => this.handleClick(i)}
-            />
-        </div>
-        <div className="game-info">
-          <div>{status}</div>
-          {this.options.showHistory?(<ol>{moves}</ol>):""}
-        </div>
-      </div>
+        <section className="App-intro">
+          <div>
+            To play online search for a match or then
+            <br/> start one below and have fun.
+          </div>
+        </section>
+        <section className="App-Game">
+          <div>
+            <label htmlFor="boardsize">Select board size: </label>
+            <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
+              Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
+                <option key={number.toString()} value={number}>{number}</option>
+            ))}</select>
+          </div>
+
+          <div className="game-board">
+            <Board boardSize={this.props.boardSize}
+              squares={current.squares}
+              onClick={(i) => this.handleClick(i)}
+              />
+          </div>
+          <div className="game-info">
+            <div>{status}</div>
+            {this.options.showHistory?(<ol>{moves}</ol>):""}
+          </div>
+        </section>
+        <section className="App-Rules">
+          <p>The rules to win this game is one of above:</p>
+          <ol>
+            <li>fulfill one entire row</li>
+            <li>fulfill one entire column</li>
+            <li>fulfill one diagonal line</li>
+          </ol>
+        </section>        
+      </div>      
     );
   }
 }

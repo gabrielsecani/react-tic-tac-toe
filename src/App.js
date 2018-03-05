@@ -2,99 +2,49 @@ import React, { Component } from 'react';
 // import ReactDOM from 'react-dom';
 import logo from './logo.png';
 import './App.css';
+import { routes, SwitchRouting } from './constants/routes';
+import { Link } from 'react-router-dom';
 
-
-import Loadable from 'react-loadable';
-import LoadingComponent from './components/LoadingComponent';
 import SignInScreen from './components/SignInScreen';
 import { firebaseAuth } from './components/Fire';
 
-const LoadableGame = Loadable({
-  loader: () => import('./components/Game/Game'),
-  loading: LoadingComponent,
-});
-
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      username: '',
-      boardSize: 3,
-    };
-  }
-
-  handleUsername(event){
-    if(!this.state.username)
-      this.setState({username: event.target.value});
-  }
-
-  handleBoardSizeChange(event) {
-    console.log(this, event);
-    this.setState({boardSize: parseInt(event.currentTarget.value, 10)})
-  }
+class AppHeader extends Component {  
   handleAuthStateChange(user) {
-    console.log('auth change:',user);
-
-    // if (user&&user.auth()){
-    //   this.setState({username: user.auth().displayName});
-    // }
+    // console.log('auth change:', user, firebaseAuth);
+    // this.setState({});
   }
-
-  renderNoAuth(){
-    return (<div>
-      <section className="App-intro">
-      Please have a sit with login and have fun!
-      </section>
-    </div>);
-  }
-
-  renderAuth(){
-    return (<div>
-        <section className="App-intro">
-      <div>
-        To get start, search for a match or then
-        <br/> start one and have fun.
-      </div>
-      </section>
-      <section className="App-Settings">
-        {/* <p>
-          <label htmlFor="name">User name: </label>
-          <input value={this.state.username} onChange={this.handleUsername.bind(this)} name="username" />
-        </p> */}
-        <p>
-          <label htmlFor="boardsize">Select board size: </label>
-          <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
-            Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
-              <option key={number.toString()} value={number}>{number}</option>
-          ))}</select>
-        </p>
-      </section>
-      <section className="App-Game">
-        <LoadableGame boardSize={this.state.boardSize}/>
-      </section>
-    </div>);
-  }
-
+  
   render() {
-    return (<div className="App">
+    return (
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to Tic Tac Toe App</h1>
-        <section className="App-login">
-          <SignInScreen firebaseAuth={firebaseAuth} onAuthStateChanged={this.handleAuthStateChange.bind(this)}/>
-        </section>
+          <nav>
+            <ul>
+              {routes.filter(r=>!!r.display).map((r,i)=>(
+                <li><Link key={i} to={r.path}>{r.display}</Link>
+                {r.routes?(
+                  <ul>{r.routes.map(c=>(<li><Link to={r.path+'/'+c.path}> {c.display}</Link></li>))}</ul>
+                ):''}
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <section className="App-login">
+            <SignInScreen firebaseAuth={firebaseAuth} onAuthStateChanged={this.handleAuthStateChange.bind(this)}/>
+          </section>
         </header>
-        {(!!!firebaseAuth.currentUser)? this.renderAuth() : this.renderNoAuth() }
-        <section className="App-Rules">
-          <p>The rules to win this game is one of above:</p>
-          <ol>
-            <li>fulfill one entire row</li>
-            <li>fulfill one entire column</li>
-            <li>fulfill one diagonal line</li>
-          </ol>
-        </section>
-      </div>
     );
+  }
+}
+
+const NoAuth=()=>(<section className="App-intro">Please have a sit with login and have fun!</section>);
+
+class App extends Component {
+  render() {
+    return (<div>
+      { (!!!firebaseAuth.currentUser)? <SwitchRouting AppHeader={AppHeader}/> : <NoAuth/> }
+    </div>);
   }
 }
 
