@@ -17,7 +17,7 @@ const LoadableSearch = Loadable({
 // <Route path='*' component={NotFound}/>
 
 export const routes = [
-  { path: '/', exact: true, to:'search', display: 'Home', render: ()=> (<Redirect to="search"/>) },
+  { path: '/', exact: true, to:'search', display: '', render: ()=> (<Redirect to="search"/>) },
   { path: '/game', display: 'Play Game alone', component: LoadableGame },
   { path: '/search', display: 'Search for Game', component: LoadableSearch }
 ];
@@ -27,7 +27,7 @@ export const SwitchRouting = ({AppHeader}) => (
     <div className="App">
       <AppHeader/>
       <div>
-        {routes.map((route,i)=>(
+      {routes.map((route,i)=>(
           <Route key={i} {...route}>
           {route.childrens?(
             <div>
