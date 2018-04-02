@@ -40,10 +40,10 @@ class MyInput extends Component {
   }
 
   render() {
-    if(!this.state.event && this.state.typed !== this.props.value){
+    if ( !this.state.event && this.state.typed !== this.props.value ){
       setTimeout( ()=> this.setState({typed: this.props.value}), 100);
     }
-    return (<input ref={i=>this.input} {...this.properties} value={this.state.typed} onChange={this.handleOnChange.bind(this)} onBlur={this.handleOnBlur.bind(this)} />);
+    return (<input {...this.properties} value={this.state.typed} value={this.state.typed} onChange={this.handleOnChange.bind(this)} onBlur={this.handleOnBlur.bind(this)} />);
   }
 }
 
