@@ -8,7 +8,12 @@
     },
     "games": {
       ".read": "auth != null",
-      ".write": "auth != null",
+      ".write": "auth != null"
+    },
+    "gameList": {
+      ".indexOn": ["createdAt"],
+      ".read": "auth != null",
+      ".write": "auth != null"
     }
   }
 }
