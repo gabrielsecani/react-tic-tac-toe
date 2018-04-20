@@ -1,4 +1,4 @@
-ol, ul {
+ol {
   padding-left: 30px;
 }
 
@@ -51,4 +51,35 @@ ol, ul {
 .game-info,
 .game-board {
   margin: auto;
+}
+
+.game-list {
+  margin: 10px auto ;
+  width: 400px;
+}
+
+.game-list ol li:hover {
+  background-color: aliceblue;
+  cursor: pointer;
+}
+.game-list ol li {
+  display: block;
+  border: black 1px solid;
+  margin: 2px;
+}
+
+.telling{
+  width: 400px;
+  margin: 10px auto;
+}
+.game-list .name{
+  font-size: 18px;
+}
+.game-list .date{
+  display: block;
+  font-size: 14px;
+}
+.game-list .many{
+  float: left;
+  font-size: 14px;
 }

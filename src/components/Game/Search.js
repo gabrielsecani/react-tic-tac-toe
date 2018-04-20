@@ -1,68 +1,93 @@
 import React from 'react';
-import MyInput from '../MyInput';
+// import MyInput from '../MyInput';
 // import ReactDOM from 'react-dom';
 import GameAPIs from './api/gameAPI';
+import '../Game/Game.css';
 
+class Tempo {
+  constructor(timems){
+    this.tempoTimeout=null;
+    this.timeMs = timems;
+  }
+
+  run(timems) {
+    const timeMs = timems || this.timeMs;
+    if(this.tempoTimeout) clearTimeout(this.tempoTimeout);
+    return new Promise(resolve => {
+      this.tempoTimeout = setTimeout(()=>{
+        if(resolve) resolve.apply();
+        if(this.tempoTimeout) clearTimeout(this.tempoTimeout);
+      }, timeMs);
+    });
+  }
+}
 class Search extends React.Component {
   
   constructor(props) {
     super(props);
     this.state = {
-      gameSearchName: '',
-      gameList: [1,4,2],
+      gameList: [],
     }
-  }
+    this.tempo = new Tempo(1000);
+    this.tempo.run().then(a=>console.log(a))
 
-  handleGameNameChange(event) {
-    let state = { gameSearchName: event.target.value };
-    this.doSearchGame(state);
+    setTimeout(()=>this.onSearch(),250);
+    // this.handleGameNameChange = this.handleGameNameChange.bind(this);
   }
   
-  doSearchGame(pstate){
-    let state = Object.assign({}, pstate);
-    let list = [];
-    GameAPIs.getGameList(
-      snapshot => {
-        snapshot.forEach( (childSnapshot) => {
-          const childKey = childSnapshot.key;
-          // const childData = childSnapshot.val();
-          if (!state.gameSearchName || childKey.toUpperCase().indexOf(state.gameSearchName.toUpperCase()) > -1) {
-            list.push(GameAPIs.getNodeVal(childSnapshot));
-          }
+  doSearchGame(gameSearchName) {
+    this.tempo.run().then(()=> {
+      GameAPIs.getGameList().then(
+      list => {
+        const filteredList = (gameSearchName === "") ? list:
+          list.filter(g=>g.name.indexOf(gameSearchName)>=0);
+        this.setState({
+          gameList: filteredList,
         });
-        state.gameList = list;
-
-        console.log(`searched for ${state.gameSearchName}.`, state, GameAPIs);
-        // start a search for a game
-        this.setState(state);
+      }, 
+      rejct => {
+        console.log(rejct);
       });
+    });
   }
 
   onSearch(){
     // buscar no firebase por jogos disponiveis
     // search on firebase for available games
-    this.doSearchGame(this.state);
+    this.doSearchGame(this.searchRef.value);
   }
 
+  handleSelectGame(item){
+    //get the game selected on filling the player left
+    console.log(item, this);
+  }
+  
   render() {
+    const GameSearch = (props) => {
+      return (<div>
+        <input type="search" placeholder="Game Name to Search" ref={el=>this.searchRef=el} onChange={this.onSearch.bind(this)} />
+        {/* <input value={this.state.gameSearchName} onChange={this.handleGameNameChange.bind(this)}/> */}
+        <button value="Search" onClick={this.onSearch.bind(this)}>Search</button>
+      </div>);
+    }
+    
     return (
       <div className="game-search">
-      gameSearchName: '{this.state.gameSearchName}',
         <div className="telling">
-          Here you are! Well, to join some one game you need to be logged <br/>
-          and then just tell me some ones game name on box below or <br/>
-          leave empty and click on Search button right over there!</div>
-        <div>
-          <MyInput placeholder="Game to Search" value={this.state.gameSearchName} onChange={this.handleGameNameChange.bind(this)}/>
-          {/* <input value={this.state.gameSearchName} onChange={this.handleGameNameChange.bind(this)}/> */}
-          <button value="Search" onClick={this.onSearch.bind(this)}>Search</button>
+          Here you are! Well, to join some one game you need 
+          to be logged so just tell me a game name on the
+          box below and click on Search button right over there!
         </div>
-        <div>
+        <GameSearch/>
+        <div className="game-list">
+          Games List
           <ol>
-            {this.state.gameList
-              .map((list)=>(<li key={list.key}>{list.name}({list.createdAt})</li>))}
-              {/* .map((a,i)=>(<li key={i}>{i}{a}</li>))} */}
-            {/* <GameSearch searchFor="*"/> */}
+            {this.state.gameList.map( (list) =>
+            (<li key={list.key} onClick={this.handleSelectGame.bind(this, list)}>
+              <div className="name">{list.name}</div>
+              <div className="many">{list.playersConnected||0} players</div>
+              <div className="date">{list.createdAtString}</div>
+            </li>))}
           </ol>
         </div>
       </div>
