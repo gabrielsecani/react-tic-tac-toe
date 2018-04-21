@@ -21,6 +21,7 @@ class Tempo {
     });
   }
 }
+
 class Search extends React.Component {
   
   constructor(props) {
@@ -33,6 +34,10 @@ class Search extends React.Component {
 
     setTimeout(()=>this.onSearch(),250);
     // this.handleGameNameChange = this.handleGameNameChange.bind(this);
+  }
+
+  componentWillUnmount() {
+    GameAPIs.off();
   }
   
   doSearchGame(gameSearchName) {
@@ -59,7 +64,7 @@ class Search extends React.Component {
 
   handleSelectGame(item){
     //get the game selected on filling the player left
-    console.log(item, this);
+    this.props.history.push('/play/'+item.gameId);
   }
   
   render() {
@@ -83,7 +88,7 @@ class Search extends React.Component {
           Games List
           <ol>
             {this.state.gameList.map( (list) =>
-            (<li key={list.key} onClick={this.handleSelectGame.bind(this, list)}>
+            (<li key={list.gameId} onClick={this.handleSelectGame.bind(this, list)}>
               <div className="name">{list.name}</div>
               <div className="many">{list.playersConnected||0} players</div>
               <div className="date">{list.createdAtString}</div>

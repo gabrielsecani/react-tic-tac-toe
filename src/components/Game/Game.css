@@ -59,13 +59,17 @@ ol {
 }
 
 .game-list ol li:hover {
-  background-color: aliceblue;
+  background-color: darkgrey;
   cursor: pointer;
 }
+
 .game-list ol li {
+  background-color: rgb(242,242,242);
+  /* border: black 1px solid; */
   display: block;
-  border: black 1px solid;
-  margin: 2px;
+  margin: 5px 0px;
+  min-height: 45px;
+  padding: 10px;
 }
 
 .telling{

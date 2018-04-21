@@ -6,14 +6,12 @@
         ".write": "$uid === auth.uid"
       }
     },
-    "games": {
-      ".read": "auth != null",
-      ".write": "auth != null"
-    },
-    "gameList": {
-      ".indexOn": ["createdAt"],
-      ".read": "auth != null",
-      ".write": "auth != null"
+    "gameState": {
+      "gameId": {
+        ".indexOn": "createdAt",
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
     }
   }
 }
