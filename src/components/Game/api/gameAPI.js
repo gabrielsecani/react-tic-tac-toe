@@ -33,16 +33,35 @@ import { firebaseDb } from '../../Fire';
 class GameState {
   constructor(data){
     if(!data) return;
-    this.boardSize = data.boardSize || 3;
+    this.boardSize = data.boardSize;
     this.createdAt = data.createdAt;
     this.gameId = data.gameId;
     this.name = data.name;
     this.playerO = data.playerO;
     this.playerX = data.playerX;
-    this.stepNumber = data.stepNumber;
-    this.history = data.history;
-
-    this.createdAtString = new Date(this.createdAt).toLocaleString();
+    
+    if (!data.history && data.boardSize) {
+      this.history = [{
+        squares: Array(this.boardSize).fill(false),
+      }];
+    } else {
+      this.history = data.history;
+      // if (' Array.isArray(data.history) ) {
+        // this.history = data.history;
+        // data.history.forEach((h,i) => {
+          //   if ( typeof h == 'object' ) {
+            //     let sq = [];
+            //     h.squares.forEach((s,j)=>{
+              //       sq[j]=s;
+              //     });
+              //     this.history[i] = {squares: sq};
+              //   }
+              // })
+    }
+    
+    this.stepNumber = Math.min(data.stepNumber, this.history.length-1);
+    
+    this.createdAtString = this.createdAt?new Date(this.createdAt).toLocaleString():'';
     this.playersConnected = 
       (data.playerX?1:0) + 
       (data.playerO?1:0);
@@ -51,20 +70,21 @@ class GameState {
   /**
    * Return an object for  storage 
    */
-  toFBStorage(){
-    return {
-      boardSize: this.boardSize,
-      createdAt: this.createdAt,
-      gameId: this.gameId, 
-      name: this.name,
-      playerO: this.playerO||null,
-      playerX: this.playerX||null,
-      stepNumber: this.stepNumber||0,
-      history: (this.history)? this.history: [{
-        squares: Array(this.boardSize).fill(null),
-      }],
-    };
+  toFBStorage() {
+    const obj = {};
+    if(this.boardSize!==undefined) obj.boardSize = this.boardSize||null;
+    if(this.createdAt!==undefined) obj.createdAt = this.createdAt||null;
+    if(this.gameId!==undefined) obj.gameId = this.gameId||null;
+    if(this.name!==undefined) obj.name = this.name||null;
+    if(this.playerO!==undefined) obj.playerO = this.playerO||null;
+    if(this.playerX!==undefined) obj.playerX = this.playerX||null;
+    if(this.stepNumber!==undefined) obj.stepNumber = this.stepNumber||0;
+    if(this.history!==undefined) obj.history = (this.history)? this.history: [{
+        squares: Array(this.boardSize).fill(false),
+      }];
+    return obj;
   }
+
 }
 
 class GameAPIClass {
@@ -142,12 +162,13 @@ class GameAPIClass {
    * The type param is once for get just once time or
    *  on to create an listener handle to catch changes
    *  from firebase 
-   * @param {*} gameId 
-   * @param {*} type default is 'once'
+   * @param {string} gameId 
+   * @param {string} type default is 'on'
+   * @param {string} eventType default is 'value', can be child_added, child_changed, child_removed
    */
-  getGameState(gameId, type) {
+  getGameState(gameId, type='on', eventType='value') {
     return new Promise( (resolve, reject) => {
-      const thenExec = (s,v) => {
+      const thenExec = (s) => {
         const val = s.val();
         if( !!!val ) {
           reject("Game not found");
@@ -163,12 +184,23 @@ class GameAPIClass {
 
       const child = this.ref.child(gameId);
       if( type === "on" ) {
-        child.on('value', thenExec, reject );
-        // child.on('child_added', thenExec, reject );
-        // child.on('child_changed', thenExec, reject );
+        child.on(eventType, thenExec, reject );
       } else {
-        child.once('value', thenExec, reject );
+        child.once(eventType, thenExec, reject );
       }
+    });
+  }
+
+  /**
+   * 
+   * @param {string} gameId 
+   * @param {*} gameState 
+   */
+  setGameState(gameId, gameState) {
+    return new Promise( (resolve, reject) => {
+      const gs = new GameState(gameState).toFBStorage()
+      const child = this.ref.child(gameId);
+      child.update(gs, resolve).then(resolve, reject );
     });
   }
 }

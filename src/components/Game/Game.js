@@ -2,22 +2,70 @@ import React from 'react';
 // import ReactDOM from 'react-dom';
 import Board from './Board';
 import './Game.css';
+import GameAPIs from './api/gameAPI';
 
 class Game extends React.Component {
-  
+
   constructor(props) {
     super(props);
-    this.state = {
-      history: [{
-        squares: Array(this.props.boardSize).fill(null),
-      }],
-      stepNumber: 0,
-      winnerLines: null,
-    };
+    
+    this.gameId = (this.props.match&&this.props.match.params&&this.props.match.params.id);
+    this.online = !!this.gameId;
+
     this.options = {
       showHistory: true,
     };
+
     Object.assign(this.options, this.props, this.props.options);
+
+    this.state = {
+      history: [{
+        squares: Array(1).fill(false),
+      }],
+      stepNumber: 0,
+    }
+
+    if (this.online||true) {
+      this._setState = this.setState;
+      this.setState = this.setGameState;
+    }
+  }
+
+  setGameState(stt, callback) {
+    if (this.online) {
+      //update firebase and let it fire listener handle
+      GameAPIs.setGameState(this.gameId, stt)
+        .then( ()=>{
+          console.log('Game.setGameState.then:done ',stt);
+          this._setState(stt);
+          this._setState({_online_loaded:true});
+        });
+    } else {
+      this._setState(stt, callback);
+    }
+  }
+
+  componentDidMount() {
+    if(this.online) {
+      GameAPIs.getGameState(this.gameId)
+      .then(this.handleStateChange.bind(this))
+      .catch(reason => {
+        console.error(reason);
+        alert(reason);
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    if(this.online){
+      GameAPIs.off();
+    }
+  }
+
+  handleStateChange(stt) {
+    console.log('handleStateChange', stt);
+    this.setState(stt);
+
   }
 
   calculateWinner(squares, size) {
@@ -44,16 +92,6 @@ class Game extends React.Component {
       }
       lines = [...lines, col, lin];
       this.winnerLines = lines;
-      // setTimeout(()=>{
-      //   console.log('setstate');
-      //   this.setState({
-      //     // history: [{
-      //     //   squares: Array(this.props.boardSize).fill(null),
-      //     // }],
-      //     // stepNumber: 0,
-      //     winnerLines: lines,
-      //   });
-      // }, 10000);
     }
     
     var empate=
@@ -80,7 +118,7 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    if (this.calculateWinner(squares, this.props.boardSize) || squares[i]) {
+    if (this.calculateWinner(squares, this.state.boardSize) || squares[i]) {
       return;
     }
     squares[i] = this.nextPlayerSymbol();
@@ -99,15 +137,24 @@ class Game extends React.Component {
   }
 
   handleBoardSizeChange(event) {
-    // console.log(this, event);
     this.setState({boardSize: parseInt(event.currentTarget.value, 10)})
   }
 
   render() {
-    if(this.props.boardSize<3) return (<br/>);
-    const history = this.state.history;
-    const current = history[this.state.stepNumber];
-    const winner = this.calculateWinner(current.squares, this.props.boardSize);
+
+    if (this.online && !this.state._online_loaded) {
+      return (<section className="App-intro">
+        <div>
+          Loading the online game... <br/>
+          Please wait!
+        </div>
+      </section>);
+    }
+
+    if(this.state.boardSize<3) return (<br/>);
+    const gameHistory = this.state.history;
+    const current = gameHistory[this.state.stepNumber];
+    const winner = this.calculateWinner(current.squares, this.state.boardSize);
 
     let status;
     if (winner) {
@@ -116,7 +163,7 @@ class Game extends React.Component {
       status = 'Next player: ' + (this.nextPlayerSymbol());
     }
 
-    const moves = history.map((step, move) => {
+    const moves = gameHistory.map((step, move) => {
       const desc = move ?
         'Go to move #' + move :
         'Go to game start';
@@ -126,7 +173,7 @@ class Game extends React.Component {
         </li>
       );
     });
-
+    
     return (
       <div className="game">
         <section className="App-intro">
@@ -136,16 +183,18 @@ class Game extends React.Component {
           </div>
         </section>
         <section className="App-Game">
-          <div>
+          {(this.online)?
+           (<div>This is an online game</div>):
+           (<div>
             <label htmlFor="boardsize">Select board size: </label>
             <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
               Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
                 <option key={number.toString()} value={number}>{number}</option>
             ))}</select>
-          </div>
+          </div>)}
 
           <div className="game-board">
-            <Board boardSize={this.props.boardSize}
+            <Board boardSize={this.state.boardSize}
               squares={current.squares}
               onClick={(i) => this.handleClick(i)}
               />
@@ -162,7 +211,8 @@ class Game extends React.Component {
             <li>fulfill one entire column</li>
             <li>fulfill one diagonal line</li>
           </ol>
-        </section>        
+        </section>
+        )}        
       </div>      
     );
   }
