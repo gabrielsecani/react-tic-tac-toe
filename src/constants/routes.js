@@ -18,12 +18,6 @@ const LoadableCreate = Loadable({
   loading: LoadingComponent,
 });
 
-const LoadablePlay = Loadable({
-  loader: () => import('../components/Game/PlayGame'),
-  loading: LoadingComponent,
-});
-
-
 // const NotFound=()=>(<section className="App-intro">Page Not Found</section>);
 // <Route path='*' component={NotFound}/>
 
@@ -32,7 +26,7 @@ export const routes = [
   { path: '/game', display: 'Play Game alone', component: LoadableGame },
   { path: '/search', display: 'Search for Game', component: LoadableSearch },
   { path: '/new', display: 'Create a Game', component: LoadableCreate },
-  { path: '/play/:id', display: '', component: LoadablePlay },
+  { path: '/play/:id', display: '', component: LoadableGame },
 ];
 
 export const SwitchRouting = ({AppHeader}) => (
