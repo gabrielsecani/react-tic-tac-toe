@@ -59,9 +59,7 @@ class Game extends React.Component {
   }
 
   componentWillUnmount() {
-    if(this.online){
-      GameAPIs.off();
-    }
+    GameAPIs.off();
   }
 
   handleGameStateChange(stt) {
@@ -174,7 +172,17 @@ class Game extends React.Component {
         </li>
       );
     });
-    
+    const BoardSizeSelect = 
+      (this.online)?
+        (<div>This is an online game</div>):
+        (<div>
+          <label htmlFor="boardsize">Select board size: </label>
+          <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
+            Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
+              <option key={number.toString()} value={number}>{number}</option>
+          ))}</select>
+        </div>);
+
     return (
       <div className="game">
         <section className="App-intro">
@@ -184,15 +192,8 @@ class Game extends React.Component {
           </div>
         </section>
         <section className="App-Game">
-          {(this.online)?
-           (<div>This is an online game</div>):
-           (<div>
-            <label htmlFor="boardsize">Select board size: </label>
-            <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
-              Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
-                <option key={number.toString()} value={number}>{number}</option>
-            ))}</select>
-          </div>)}
+
+          <BoardSizeSelect/>
 
           <div className="game-board">
             <Board boardSize={this.state.boardSize}
@@ -213,7 +214,7 @@ class Game extends React.Component {
             <li>fulfill one diagonal line</li>
           </ol>
         </section>
-      </div>      
+      </div>
     );
   }
 }

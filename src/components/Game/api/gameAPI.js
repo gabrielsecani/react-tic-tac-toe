@@ -100,8 +100,7 @@ class GameAPIClass {
   // }
 
   off() {
-    if(this.ref)
-      this.ref.off();
+    this.getRef().off();
   }
 
   getRef() {
@@ -110,7 +109,7 @@ class GameAPIClass {
     return this.ref;
   }
 
-  getNodeVal(childSnapshot){
+  getNodeVal(childSnapshot) {
     return {
       key: childSnapshot.key,
       ...childSnapshot.val()
