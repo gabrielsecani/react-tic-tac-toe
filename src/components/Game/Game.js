@@ -20,27 +20,34 @@ class Game extends React.Component {
 
     this.state = {
       history: [{
-        squares: Array(1).fill(false),
+        squares: [false],
       }],
       stepNumber: 0,
     }
 
-    if (this.online||true) {
-      this._setState = this.setState;
+    // if (this.online||true) {
+      this.local_setState = this.setState;
       this.setState = this.setGameState;
-    }
+    // }
   }
 
-  setGameState(stt, callback) {
-    if (this.online) {
+  setGameState(stt, callback=null, local=false) {
+    if (this.online && !local) {
       //update firebase and let it fire listener handle
       GameAPIs.setGameState(this.gameId, stt)
-        .then( ()=>{
+        .then( () => {
           console.log('Game.setGameState.then:done ',stt);
-          this._setState(stt, callback);
+          this.setState(stt, callback, true);
+        }, reason => {
+          console.error("setGameState:", reason, stt);
+          alert("setGameState:" + reason);
         });
     } else {
-      this._setState(stt, callback);
+      if(callback){
+        this.local_setState(stt, callback);
+      }else{
+        this.local_setState(stt);
+      }
     }
   }
 
@@ -48,8 +55,8 @@ class Game extends React.Component {
     if(this.online) {
       GameAPIs.getGameState(this.gameId)
       .then((v)=>{
-        this.handleGameStateChange(v);
-        this._setState({_online_loaded:true});
+          this.handleGameStateChange(v);
+          this.setState( {online_loaded: true}, null, true);
       })
       .catch(reason => {
         console.error(reason);
@@ -141,7 +148,7 @@ class Game extends React.Component {
 
   render() {
 
-    if (this.online && !this.state._online_loaded) {
+    if (this.online && !this.state.online_loaded) {
       return (<section className="App-intro">
         <div>
           Loading the online game... <br/>
@@ -172,7 +179,7 @@ class Game extends React.Component {
         </li>
       );
     });
-    const BoardSizeSelect = 
+    const BoardSizeSelect = () =>
       (this.online)?
         (<div>This is an online game</div>):
         (<div>
