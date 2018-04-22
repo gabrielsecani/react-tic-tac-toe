@@ -10,14 +10,19 @@ class Tempo {
     this.timeMs = timems;
   }
 
-  run(timems) {
+  run(timems, params=null) {
     const timeMs = timems || this.timeMs;
-    if(this.tempoTimeout) clearTimeout(this.tempoTimeout);
+    if(this.tempoTimeout) {
+      console.log('Tempo:: timeout cancelled!', this.tempoTimeout);
+      clearTimeout(this.tempoTimeout);
+    }
     return new Promise(resolve => {
-      this.tempoTimeout = setTimeout(()=>{
-        if(resolve) resolve.apply();
-        if(this.tempoTimeout) clearTimeout(this.tempoTimeout);
-      }, timeMs);
+      this.tempoTimeout = setTimeout((params)=>{
+        console.log('Tempo:: hit!');
+        if(resolve) resolve.apply(null, params);
+        // if(this.tempoTimeout) clearTimeout(this.tempoTimeout);
+      }, timeMs, params);
+      console.log('Tempo:: timeout has began!', this.tempoTimeout, timeMs);      
     });
   }
 }
@@ -26,20 +31,20 @@ class Search extends React.Component {
   
   constructor(props) {
     super(props);
+    
     this.state = {
       gameList: [],
     }
-    this.tempo = new Tempo(1000);
-    this.tempo.run().then(a=>console.log(a))
 
-    setTimeout(()=>this.onSearch(),250);
-    // this.handleGameNameChange = this.handleGameNameChange.bind(this);
+    this.tempo = new Tempo(100);
+    this.tempo.run().then(a=>console.log(a));
+    this.tempo.run(10).then(() => this.onSearch());
   }
 
   componentWillUnmount() {
     GameAPIs.off();
   }
-  
+
   doSearchGame(gameSearchName) {
     this.tempo.run().then(()=> {
       GameAPIs.getGameList().then(
@@ -56,13 +61,13 @@ class Search extends React.Component {
     });
   }
 
-  onSearch(){
+  onSearch() {
     // buscar no firebase por jogos disponiveis
     // search on firebase for available games
     this.doSearchGame(this.searchRef.value);
   }
 
-  handleSelectGame(item){
+  handleSelectGame(item) {
     //get the game selected on filling the player left
     this.props.history.push('/play/'+item.gameId);
   }

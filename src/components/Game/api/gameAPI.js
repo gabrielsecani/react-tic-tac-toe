@@ -33,38 +33,44 @@ import { firebaseDb } from '../../Fire';
 class GameState {
   constructor(data){
     if(!data) return;
-    this.boardSize = data.boardSize;
-    this.createdAt = data.createdAt;
-    this.gameId = data.gameId;
-    this.name = data.name;
-    this.playerO = data.playerO;
-    this.playerX = data.playerX;
-    
-    if (!data.history && data.boardSize) {
-      this.history = [{
-        squares: Array(this.boardSize).fill(false),
-      }];
-    } else {
-      this.history = data.history;
-      // if (' Array.isArray(data.history) ) {
-        // this.history = data.history;
-        // data.history.forEach((h,i) => {
-          //   if ( typeof h == 'object' ) {
-            //     let sq = [];
-            //     h.squares.forEach((s,j)=>{
-              //       sq[j]=s;
-              //     });
-              //     this.history[i] = {squares: sq};
-              //   }
-              // })
+    try {
+      this.boardSize = data.boardSize;
+      this.createdAt = data.createdAt;
+      this.gameId = data.gameId;
+      this.name = data.name;
+      this.playerO = data.playerO;
+      this.playerX = data.playerX;
+      
+      if (!data.history && data.boardSize) {
+        this.history = [{
+          squares: Array(this.boardSize*this.boardSize).fill(false),
+        }];
+      } else {
+        this.history = data.history;
+
+        if(Array.isArray(this.history)){
+          this.history.forEach(v=>{
+            let sq=v.squares;
+            if( ! Array.isArray(sq) ) {
+              let s=Array(this.state.boardSize*this.state.boardSize).fill(null);
+              for (const i in Array(this.state.boardSize*this.state.boardSize).fill(1).map((a,i)=>i)) {
+                s[i] = sq[i];
+              }
+            }
+          });
+        }
+      }
+
+      this.createdAtString = this.createdAt?new Date(this.createdAt).toLocaleString():'';
+      this.playersConnected = 
+        (data.playerX?1:0) + 
+        (data.playerO?1:0);
+      
+      this.stepNumber = Math.min(data.stepNumber, this.history.length-1);
+      
+    }catch(ex){
+      this.error=ex;
     }
-    
-    this.stepNumber = Math.min(data.stepNumber, this.history.length-1);
-    
-    this.createdAtString = this.createdAt?new Date(this.createdAt).toLocaleString():'';
-    this.playersConnected = 
-      (data.playerX?1:0) + 
-      (data.playerO?1:0);
   }
 
   /**
@@ -89,16 +95,19 @@ class GameState {
 
 class GameAPIClass {
 
-  constructor () {
-    this.ref=this.getGameStateRef();
-  }
+  // constructor () {
+  //   this.ref=this.getRef();
+  // }
 
   off() {
-    this.ref.off();
+    if(this.ref)
+      this.ref.off();
   }
 
-  getGameStateRef() {
-    return firebaseDb.ref('gameState');
+  getRef() {
+    if(!this.ref)
+      this.ref = firebaseDb.ref('gameState');
+    return this.ref;
   }
 
   getNodeVal(childSnapshot){
@@ -110,8 +119,8 @@ class GameAPIClass {
 
   getGameList() {
     return new Promise((resolve, reject)=>{
-      return this.ref
-        .orderByChild('createdAt')
+      return this.getRef()
+        // .orderByChild('createdAt')
         .limitToLast(5)
         .on('value', 
         snapshot => {
@@ -119,7 +128,11 @@ class GameAPIClass {
           snapshot.forEach( (childSnapshot) => {
             // const childKey = childSnapshot.key;
             const childData = childSnapshot.val();
-            list.push(new GameState(childData));
+            const val = new GameState(childData);
+            if(val.error)
+              console.error(val.error);
+            else
+              list.push(val);
           });
           resolve && resolve(list);
       })//get value
@@ -129,7 +142,7 @@ class GameAPIClass {
   newGame(game) {
     return new Promise( (resolve, reject) => {
       // const gameId = firebaseDb.ref().child('gameList')
-      const gameId = this.ref.push().key;
+      const gameId = this.getRef().push().key;
       // const gameId = hash.sha1(hash.sha1(game));
       const newListItem = {
         [gameId]: 
@@ -142,7 +155,7 @@ class GameAPIClass {
           }).toFBStorage()
       };
 
-      this.ref.update(newListItem).then(
+      this.getRef().update(newListItem).then(
         () => resolve && resolve(gameId), 
         (r) => reject && reject(r)
       );
@@ -182,7 +195,7 @@ class GameAPIClass {
         }
       };
 
-      const child = this.ref.child(gameId);
+      const child = this.getRef().child(gameId);
       if( type === "on" ) {
         child.on(eventType, thenExec, reject );
       } else {
@@ -199,7 +212,7 @@ class GameAPIClass {
   setGameState(gameId, gameState) {
     return new Promise( (resolve, reject) => {
       const gs = new GameState(gameState).toFBStorage()
-      const child = this.ref.child(gameId);
+      const child = this.getRef().child(gameId);
       child.update(gs, resolve).then(resolve, reject );
     });
   }

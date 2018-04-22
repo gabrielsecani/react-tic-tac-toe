@@ -37,8 +37,7 @@ class Game extends React.Component {
       GameAPIs.setGameState(this.gameId, stt)
         .then( ()=>{
           console.log('Game.setGameState.then:done ',stt);
-          this._setState(stt);
-          this._setState({_online_loaded:true});
+          this._setState(stt, callback);
         });
     } else {
       this._setState(stt, callback);
@@ -48,7 +47,10 @@ class Game extends React.Component {
   componentDidMount() {
     if(this.online) {
       GameAPIs.getGameState(this.gameId)
-      .then(this.handleStateChange.bind(this))
+      .then((v)=>{
+        this.handleGameStateChange(v);
+        this._setState({_online_loaded:true});
+      })
       .catch(reason => {
         console.error(reason);
         alert(reason);
@@ -62,10 +64,9 @@ class Game extends React.Component {
     }
   }
 
-  handleStateChange(stt) {
-    console.log('handleStateChange', stt);
+  handleGameStateChange(stt) {
+    console.log('handleGameStateChange', stt);
     this.setState(stt);
-
   }
 
   calculateWinner(squares, size) {
@@ -166,7 +167,7 @@ class Game extends React.Component {
     const moves = gameHistory.map((step, move) => {
       const desc = move ?
         'Go to move #' + move :
-        'Go to game start';
+        'Go to game begin';
       return (
         <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
@@ -201,7 +202,7 @@ class Game extends React.Component {
           </div>
           <div className="game-info">
             <div>{status}</div>
-            {this.options.showHistory?(<ol>{moves}</ol>):""}
+            {this.options.showHistory?(<ol><h3>History of game moves:</h3>{moves}</ol>):""}
           </div>
         </section>
         <section className="App-Rules">
@@ -212,7 +213,6 @@ class Game extends React.Component {
             <li>fulfill one diagonal line</li>
           </ol>
         </section>
-        )}        
       </div>      
     );
   }
