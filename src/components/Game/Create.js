@@ -41,10 +41,10 @@ class Create extends React.Component {
           to be logged so just tell me a game name on the
           box below and click on Search button right over there!
         </div>
-        <form preventDefault onSubmit={this.createGame.bind(this)}>
+        <form onSubmit={this.createGame.bind(this)}>
 
           <div>
-            <label for="name">Game Name </label>
+            <label htmlFor="name">Game Name </label>
             <input type="text" name="name" value={this.state.name} onChange={this.handleNameChange.bind(this)} />
           </div>
 
@@ -57,9 +57,9 @@ class Create extends React.Component {
           </div>
           
           <div>
-            <input type="radio" name="player" value="X" onClick={this.handleSelectPlayer.bind(this,'X')} checked={this.state.player==="X"}/>
+            <input type="radio" name="player" value="X" onChange={this.handleSelectPlayer.bind(this,'X')} checked={this.state.player==="X"}/>
             <label onClick={this.handleSelectPlayer.bind(this,'X')} >X</label>
-            <input type="radio" name="player" value="O"  onClick={this.handleSelectPlayer.bind(this,'O')} checked={this.state.player==="O"}/>
+            <input type="radio" name="player" value="O"  onChange={this.handleSelectPlayer.bind(this,'O')} checked={this.state.player==="O"}/>
             <label onClick={this.handleSelectPlayer.bind(this,'O')} >O</label>
           </div>
           <button>Create a game</button>
