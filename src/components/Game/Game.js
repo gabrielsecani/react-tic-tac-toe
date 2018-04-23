@@ -56,7 +56,8 @@ class Game extends React.Component {
       GameAPIs.getGameState(this.gameId)
       .then((v)=>{
           this.handleGameStateChange(v);
-          this.setState( {online_loaded: true}, null, true);
+          if(!this.state.online_loaded)
+            this.local_setState( {online_loaded: true} );
       })
       .catch(reason => {
         console.error(reason);
@@ -71,7 +72,7 @@ class Game extends React.Component {
 
   handleGameStateChange(stt) {
     console.log('handleGameStateChange', stt);
-    this.setState(stt);
+    this.local_setState( stt );
   }
 
   calculateWinner(squares, size) {
@@ -121,6 +122,10 @@ class Game extends React.Component {
   }
 
   handleClick(i) {
+    if (this.state.stepNumber < this.state.history.length-1) {
+      alert("Game was set read-only when you change step before.\n Go to the last move (#"+(this.state.history.length-1)+") to back to the game!");
+      return;
+    }
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
@@ -137,7 +142,7 @@ class Game extends React.Component {
   }
 
   jumpTo(step) {
-    this.setState({
+    this.local_setState({
       stepNumber: step,
     });
   }
