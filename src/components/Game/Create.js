@@ -8,6 +8,7 @@ class Create extends React.Component {
     super(props);
     this.state = {
       name: '',
+      boardSize: 3,
       player: 'X',
     }
   }

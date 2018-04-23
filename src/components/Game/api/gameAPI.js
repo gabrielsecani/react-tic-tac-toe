@@ -67,9 +67,10 @@ class GameState {
         (data.playerO?1:0);
       
       this.stepNumber = Math.min(data.stepNumber, this.history.length-1);
-      
+
     }catch(ex){
       this.error=ex;
+      console.error('GameAPI::constructor()', ex);
     }
   }
 
@@ -105,7 +106,12 @@ class GameAPIClass {
 
   getRef() {
     if(!this.ref)
-      this.ref = firebaseDb.ref('gameState');
+      this.ref = firebaseDb.ref('/gameState');
+    return this.ref;
+  }
+  getRefDelete() {
+    if(!this.ref)
+      this.ref = firebaseDb.ref('/gameState');
     return this.ref;
   }
 
@@ -116,26 +122,32 @@ class GameAPIClass {
     }
   }
 
-  getGameList() {
-    return new Promise((resolve, reject)=>{
-      return this.getRef()
-        // .orderByChild('createdAt')
-        .limitToLast(5)
-        .on('value', 
-        snapshot => {
-          var list = [];
-          snapshot.forEach( (childSnapshot) => {
-            // const childKey = childSnapshot.key;
-            const childData = childSnapshot.val();
-            const val = new GameState(childData);
-            if(val.error)
-              console.error(val.error);
-            else
-              list.push(val);
-          });
-          resolve && resolve(list);
-      })//get value
-    });//Promise
+  getGameList(resolve, reject) {
+    const getValue = (snapshot) => {
+      var list = [];
+      snapshot.forEach( (childSnapshot) => {
+        // const childKey = childSnapshot.key;
+        const childData = childSnapshot.val();
+        const val = new GameState(childData);
+        if (val.error) {
+          console.error(val.error);
+          reject&&reject(val.error);
+        } else {
+          list.push(val);
+        }
+      });
+      resolve && resolve(list);
+    }//get value
+    
+    this.getRef().on('value', getValue );
+  }
+
+  deleteGame(game){
+    this.getRefDelete().set({[game.gameId]: game},
+      (a)=>{
+        if(a)
+        this.getRef().set({[game.gameId]: null});
+      });
   }
 
   newGame(game) {
@@ -176,26 +188,31 @@ class GameAPIClass {
    *  from firebase 
    * @param {string} gameId 
    * @param {string} type default is 'on'
-   * @param {string} eventType default is 'value', can be child_added, child_changed, child_removed
+   * @param {string} eventType default is 'value', could be "value", "child_added", "child_removed", "child_changed", or "child_moved".
    */
   getGameState(gameId, type='on', eventType='value') {
     return new Promise( (resolve, reject) => {
       const thenExec = (s) => {
         const val = s.val();
+        console.log('thenExec', val);
         if( !!!val ) {
           reject("Game not found");
           return;
         }
         let gamestate = new GameState(val);
-        if (gamestate === null) {
-          reject('Game not found');
+        if (gamestate === null || gamestate.error) {
+          reject('Game State error. ' + gamestate.error );
         } else {
           resolve(gamestate);
         }
       };
 
       const child = this.getRef().child(gameId);
-      if( type === "on" ) {
+      if( type === 'on' ) {
+        const onn=child.on('value',
+          (a,b)=>console.log('callback',a,b)
+        );
+        console.log('onn', onn);
         child.on(eventType, thenExec, reject );
       } else {
         child.once(eventType, thenExec, reject );
@@ -206,7 +223,7 @@ class GameAPIClass {
   /**
    * 
    * @param {string} gameId 
-   * @param {*} gameState 
+   * @param {GameState} gameState 
    */
   setGameState(gameId, gameState) {
     return new Promise( (resolve, reject) => {

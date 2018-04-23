@@ -36,9 +36,11 @@ class Search extends React.Component {
       gameList: [],
     }
 
+  }
+
+  componentDidMount() {
     this.tempo = new Tempo(100);
-    this.tempo.run().then(a=>console.log(a));
-    this.tempo.run(10).then(() => this.onSearch());
+    this.onSearch();
   }
 
   componentWillUnmount() {
@@ -46,25 +48,30 @@ class Search extends React.Component {
   }
 
   doSearchGame(gameSearchName) {
-    this.tempo.run().then(()=> {
-      GameAPIs.getGameList().then(
-      list => {
-        const filteredList = (gameSearchName === "") ? list:
-          list.filter(g=>g.name.indexOf(gameSearchName)>=0);
-        this.setState({
-          gameList: filteredList,
-        });
-      }, 
-      rejct => {
-        console.log(rejct);
+    console.log('doSearchGame');
+    GameAPIs.getGameList(
+    list => {
+      const filteredList = (gameSearchName === "") ? list:
+        list.filter(g=>g.name.toUpperCase().indexOf(gameSearchName.toUpperCase())>=0);
+      this.setState({
+        gameList: filteredList,
       });
+    }, 
+    rejct => {
+      console.log(rejct);
     });
   }
 
-  onSearch() {
+  onSearch(e) {
     // buscar no firebase por jogos disponiveis
     // search on firebase for available games
-    this.doSearchGame(this.searchRef.value);
+    console.log('onSearch',this.searchRef.value);
+    const tms=(e&&e.target&& parseInt(e.target.delay,10))||1000;
+    this.tempo.run(tms).then(()=> {
+      console.log('executing doSearchGame', this.searchRef.value);
+      this.doSearchGame(this.searchRef.value);
+    }
+    );
   }
 
   handleSelectGame(item) {
@@ -75,7 +82,7 @@ class Search extends React.Component {
   render() {
     const GameSearch = (props) => {
       return (<div>
-        <input type="search" placeholder="Game Name to Search" ref={el=>this.searchRef=el} onChange={this.onSearch.bind(this)} />
+        <input type="search" delay="1000" placeholder="Game Name to Search" ref={el=>this.searchRef=el} onChange={this.onSearch.bind(this)} />
         {/* <input value={this.state.gameSearchName} onChange={this.handleGameNameChange.bind(this)}/> */}
         <button value="Search" onClick={this.onSearch.bind(this)}>Search</button>
       </div>);
@@ -88,7 +95,9 @@ class Search extends React.Component {
           to be logged so just tell me a game name on the
           box below and click on Search button right over there!
         </div>
+
         <GameSearch/>
+        
         <div className="game-list">
           Games List
           <ol>
