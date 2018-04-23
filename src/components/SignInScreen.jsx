@@ -55,7 +55,17 @@ class SignInScreen extends Component {
         {!this.state.signedIn && this.firebaseApp &&
           <div>
             <p>Please sign-in:</p>
-            <StyledFirebaseAuth uiConfig={this.uiConfig} firebaseAuth={this.firebaseAuth}/>
+            <StyledFirebaseAuth uiConfig={this.uiConfig} firebaseAuth={this.firebaseAuth} autoUpgradeAnonymousUsers="true"/>
+
+              {/* <button className="firebaseui-idp-button mdl-button mdl-js-button mdl-button--raised firebaseui-idp-phone firebaseui-id-idp-button" data-provider-id="anonymous" data-upgraded=",MaterialButton"
+                onClick={()=>this.firebaseAuth.}>
+                <span className="firebaseui-idp-icon-wrapper">
+                  <img className="firebaseui-idp-icon" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/anonymous.svg"/>
+                </span>
+                <span className="firebaseui-idp-text firebaseui-idp-text-long">Sign in Anonymous</span>
+                <span className="firebaseui-idp-text firebaseui-idp-text-short">Anonymous</span>
+              </button> */}
+
           </div>
         }
     </div>

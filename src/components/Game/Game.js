@@ -53,16 +53,15 @@ class Game extends React.Component {
 
   componentDidMount() {
     if(this.online) {
-      GameAPIs.getGameState(this.gameId)
-      .then((v)=>{
-          this.handleGameStateChange(v);
-          if(!this.state.online_loaded)
-            this.local_setState( {online_loaded: true} );
-      })
-      .catch(reason => {
+      const handle = (v)=>{
+        this.handleGameStateChange(v);
+        if( ! this.state.online_loaded) this.local_setState( {online_loaded: true} );
+      } 
+      const reason = reason => {
         console.error(reason);
         alert(reason);
-      });
+      }
+      GameAPIs.getGameState(this.gameId, handle,reason);
     }
   }
 

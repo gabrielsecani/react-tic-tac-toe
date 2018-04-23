@@ -190,20 +190,19 @@ class GameAPIClass {
    * @param {string} type default is 'on'
    * @param {string} eventType default is 'value', could be "value", "child_added", "child_removed", "child_changed", or "child_moved".
    */
-  getGameState(gameId, type='on', eventType='value') {
-    return new Promise( (resolve, reject) => {
+  getGameState(gameId, resolve, reject, type='on', eventType='value') {
       const thenExec = (s) => {
         const val = s.val();
         console.log('thenExec', val);
         if( !!!val ) {
-          reject("Game not found");
+          reject&&reject("Game not found");
           return;
         }
         let gamestate = new GameState(val);
         if (gamestate === null || gamestate.error) {
-          reject('Game State error. ' + gamestate.error );
+          reject&&reject('Game State error. ' + gamestate.error );
         } else {
-          resolve(gamestate);
+          resolve&&resolve(gamestate);
         }
       };
 
@@ -217,7 +216,6 @@ class GameAPIClass {
       } else {
         child.once(eventType, thenExec, reject );
       }
-    });
   }
 
   /**
