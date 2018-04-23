@@ -3,6 +3,7 @@ import React from 'react';
 import Board from './Board';
 import './Game.css';
 import GameAPIs from './api/gameAPI';
+import { firebaseAuth } from '../Fire';
 
 class Game extends React.Component {
 
@@ -36,7 +37,7 @@ class Game extends React.Component {
       //update firebase and let it fire listener handle
       GameAPIs.setGameState(this.gameId, stt)
         .then( () => {
-          console.log('Game.setGameState.then:done ',stt);
+          // console.log('Game.setGameState.then:done ',stt);
           this.setState(stt, callback, true);
         }, reason => {
           console.error("setGameState:", reason, stt);
@@ -55,13 +56,14 @@ class Game extends React.Component {
     if(this.online) {
       const handle = (v)=>{
         this.handleGameStateChange(v);
+        this.authUid = firebaseAuth.currentUser.uid;
         if( ! this.state.online_loaded) this.local_setState( {online_loaded: true} );
       } 
       const reason = reason => {
         console.error(reason);
         alert(reason);
       }
-      GameAPIs.getGameState(this.gameId, handle,reason);
+      GameAPIs.getGameState(this.gameId, handle, reason);
     }
   }
 
@@ -70,7 +72,7 @@ class Game extends React.Component {
   }
 
   handleGameStateChange(stt) {
-    console.log('handleGameStateChange', stt);
+    // console.log('handleGameStateChange', stt);
     this.local_setState( stt );
   }
 
@@ -125,6 +127,12 @@ class Game extends React.Component {
       alert("Game was set read-only when you change step before.\n Go to the last move (#"+(this.state.history.length-1)+") to back to the game!");
       return;
     }
+    if(this.online){
+      if (this.state['player'+this.nextPlayerSymbol()] !== this.authUid){
+        alert("You are not the player. Wait for the other player!");
+        return;
+      }
+    }
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
@@ -161,7 +169,7 @@ class Game extends React.Component {
       </section>);
     }
 
-    if(this.state.boardSize<3) return (<br/>);
+    if (this.state.boardSize<3) return (<div>Board size is less than minimal 3.</div>);
     const gameHistory = this.state.history;
     const current = gameHistory[this.state.stepNumber];
     const winner = this.calculateWinner(current.squares, this.state.boardSize);
@@ -183,6 +191,7 @@ class Game extends React.Component {
         </li>
       );
     });
+
     const BoardSizeSelect = () =>
       (this.online)?
         (<div>This is an online game</div>):

@@ -13,16 +13,16 @@ class Tempo {
   run(timems, params=null) {
     const timeMs = timems || this.timeMs;
     if(this.tempoTimeout) {
-      console.log('Tempo:: timeout cancelled!', this.tempoTimeout);
+      // console.log('Tempo:: timeout cancelled!', this.tempoTimeout);
       clearTimeout(this.tempoTimeout);
     }
     return new Promise(resolve => {
       this.tempoTimeout = setTimeout((params)=>{
-        console.log('Tempo:: hit!');
+        // console.log('Tempo:: hit!');
         if(resolve) resolve.apply(null, params);
         // if(this.tempoTimeout) clearTimeout(this.tempoTimeout);
       }, timeMs, params);
-      console.log('Tempo:: timeout has began!', this.tempoTimeout, timeMs);      
+      // console.log('Tempo:: timeout has began!', this.tempoTimeout, timeMs);      
     });
   }
 }
@@ -33,7 +33,7 @@ class Search extends React.Component {
     super(props);
     
     this.state = {
-      gameList: [],
+      gameList: "Loading...",
     }
 
   }
@@ -47,12 +47,15 @@ class Search extends React.Component {
     GameAPIs.off();
   }
 
-  doSearchGame(gameSearchName) {
-    console.log('doSearchGame');
+  doSearchGame() {
+    const gameSearchName = this.searchRef.value;
+    // console.log('doSearchGame');
     GameAPIs.getGameList(
     list => {
       const filteredList = (gameSearchName === "") ? list:
-        list.filter(g=>g.name.toUpperCase().indexOf(gameSearchName.toUpperCase())>=0);
+        list.filter(g=>g.name.toUpperCase()
+          .indexOf(gameSearchName.toUpperCase())>=0)
+          .sort((a,b)=> (2-a.playersConnected) * a.createdAt - a.createdAt);
       this.setState({
         gameList: filteredList,
       });
@@ -65,13 +68,12 @@ class Search extends React.Component {
   onSearch(e) {
     // buscar no firebase por jogos disponiveis
     // search on firebase for available games
-    console.log('onSearch',this.searchRef.value);
-    const tms=(e&&e.target&& parseInt(e.target.delay,10))||1000;
+    const tms=(e&&e.target&& parseInt(e.target.attributes.delay.value,10))||100;
     this.tempo.run(tms).then(()=> {
-      console.log('executing doSearchGame', this.searchRef.value);
-      this.doSearchGame(this.searchRef.value);
-    }
-    );
+      // console.log('executing doSearchGame', this.searchRef.value);
+      this.doSearchGame();
+    });
+    this.searchRef.focus();
   }
 
   handleSelectGame(item) {
@@ -80,13 +82,38 @@ class Search extends React.Component {
   }
   
   render() {
-    const GameSearch = (props) => {
-      return (<div>
-        <input type="search" delay="1000" placeholder="Game Name to Search" ref={el=>this.searchRef=el} onChange={this.onSearch.bind(this)} />
-        {/* <input value={this.state.gameSearchName} onChange={this.handleGameNameChange.bind(this)}/> */}
-        <button value="Search" onClick={this.onSearch.bind(this)}>Search</button>
-      </div>);
-    }
+    // const GameSearch = () => {
+    //   return (<div>
+    //     <input type="search" delay="10000" placeholder="Game Name to Search"
+    //      ref={el=>this.searchRef=el}
+    //      value={this.state.searchRef}
+    //      onChange={this.onSearch.bind(this)} 
+    //      />
+    //     {/* <input value={this.state.gameSearchName} onChange={this.handleGameNameChange.bind(this)}/> */}
+    //     <button value="Search" delay="10" onClick={this.onSearch.bind(this)}>Search</button>
+    //   </div>);
+    // }
+
+    const GameList = () => (
+    <div className="game-list">
+      Games List
+      <ol>
+        {typeof this.state.gameList === 'string'?
+          (<li><div className="name">{this.state.gameList}</div></li>):
+          this.state.gameList.map( (list) =>
+            (<li key={list.gameId} onClick={this.handleSelectGame.bind(this, list)}>
+              <div className="item">
+                <div className="name">{list.name}</div>
+                <div className="row">
+                  <div className="many">{list.playersConnected||0} connected</div>
+                  <div className="date">{list.createdAtString}</div>
+                  <div className="id">{list.gameId}</div>
+                </div>
+              </div>
+            </li>)
+          )}
+      </ol>
+    </div>)
     
     return (
       <div className="game-search">
@@ -96,19 +123,15 @@ class Search extends React.Component {
           box below and click on Search button right over there!
         </div>
 
-        <GameSearch/>
-        
-        <div className="game-list">
-          Games List
-          <ol>
-            {this.state.gameList.map( (list) =>
-            (<li key={list.gameId} onClick={this.handleSelectGame.bind(this, list)}>
-              <div className="name">{list.name}</div>
-              <div className="many">{list.playersConnected||0} players</div>
-              <div className="date">{list.createdAtString}</div>
-            </li>))}
-          </ol>
+        <div>
+          <input type="search" delay="1500" placeholder="Game Name to Search"
+            ref={el=>this.searchRef=el} onChange={this.onSearch.bind(this)} />
+          {/* <input value={this.state.gameSearchName} onChange={this.handleGameNameChange.bind(this)}/> */}
+          <button value="Search" delay="10" onClick={this.onSearch.bind(this)}>Search</button>
         </div>
+
+        <GameList/>
+
       </div>
     );
   }

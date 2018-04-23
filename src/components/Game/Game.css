@@ -1,7 +1,3 @@
-ol {
-  padding-left: 30px;
-}
-
 .board-row:after {
   clear: both;
   content: "";
@@ -35,6 +31,11 @@ ol {
   background: #ddd;
 }
 
+.telling {
+  width: 400px;
+  margin: 10px auto;
+}
+
 .game {
   /* align-content: space-between; */
   margin: auto;
@@ -65,25 +66,23 @@ ol {
 
 .game-list ol li {
   background-color: rgb(242,242,242);
-  /* border: black 1px solid; */
   display: block;
   margin: 5px 0px;
   min-height: 45px;
   padding: 10px;
 }
-
-.telling{
-  width: 400px;
-  margin: 10px auto;
+.game-list .item{
+  display: flex;
+  flex-flow: column;
+}
+.game-list .id, .many, .date {
+  font-size: 12px;
+  margin: auto;
 }
 .game-list .name{
   font-size: 18px;
+  margin-bottom: 10px;
 }
-.game-list .date{
-  display: block;
-  font-size: 14px;
-}
-.game-list .many{
-  float: left;
-  font-size: 14px;
+.row {
+  display: flex;
 }

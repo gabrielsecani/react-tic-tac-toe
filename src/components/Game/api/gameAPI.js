@@ -68,6 +68,8 @@ class GameState {
       
       this.stepNumber = Math.min(data.stepNumber, this.history.length-1);
 
+      if(typeof this.stepNumber !== 'number') this.stepNumber = 0;
+
     }catch(ex){
       this.error=ex;
       console.error('GameAPI::constructor()', ex);
@@ -86,6 +88,7 @@ class GameState {
     if(this.playerO!==undefined) obj.playerO = this.playerO||null;
     if(this.playerX!==undefined) obj.playerX = this.playerX||null;
     if(this.stepNumber!==undefined) obj.stepNumber = this.stepNumber||0;
+    if(typeof obj.stepNumber !== 'number') obj.stepNumber = 0;
     if(this.history!==undefined) obj.history = (this.history)? this.history: [{
         squares: Array(this.boardSize).fill(false),
       }];
@@ -191,31 +194,30 @@ class GameAPIClass {
    * @param {string} eventType default is 'value', could be "value", "child_added", "child_removed", "child_changed", or "child_moved".
    */
   getGameState(gameId, resolve, reject, type='on', eventType='value') {
-      const thenExec = (s) => {
-        const val = s.val();
-        console.log('thenExec', val);
-        if( !!!val ) {
-          reject&&reject("Game not found");
-          return;
-        }
-        let gamestate = new GameState(val);
-        if (gamestate === null || gamestate.error) {
-          reject&&reject('Game State error. ' + gamestate.error );
-        } else {
-          resolve&&resolve(gamestate);
-        }
-      };
-
-      const child = this.getRef().child(gameId);
-      if( type === 'on' ) {
-        const onn=child.on('value',
-          (a,b)=>console.log('callback',a,b)
-        );
-        console.log('onn', onn);
-        child.on(eventType, thenExec, reject );
-      } else {
-        child.once(eventType, thenExec, reject );
+    const thenExec = (s) => {
+      const val = s.val();
+      // console.log('thenExec', val);
+      if( !!!val ) {
+        reject&&reject("Game not found");
+        return;
       }
+      let gamestate = new GameState(val);
+      if (gamestate === null || gamestate.error) {
+        reject&&reject('Game State error. ' + gamestate.error );
+      } else {
+        resolve&&resolve(gamestate);
+      }
+    };
+
+    const child = this.getRef().child(gameId);
+    if( type === 'on' ) {
+      const onn=child.on('value',
+        (a,b)=>console.log('callback',a,b)
+      );
+      child.on(eventType, thenExec, reject );
+    } else {
+      child.once(eventType, thenExec, reject );
+    }
   }
 
   /**
