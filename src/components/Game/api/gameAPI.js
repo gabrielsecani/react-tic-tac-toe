@@ -211,9 +211,9 @@ class GameAPIClass {
 
     const child = this.getRef().child(gameId);
     if( type === 'on' ) {
-      const onn=child.on('value',
-        (a,b)=>console.log('callback',a,b)
-      );
+      // const onn=child.on('value',
+      //   (a,b)=>console.log('callback',a,b)
+      // );
       child.on(eventType, thenExec, reject );
     } else {
       child.once(eventType, thenExec, reject );
