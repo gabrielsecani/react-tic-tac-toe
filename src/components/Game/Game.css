@@ -86,3 +86,21 @@
 .row {
   display: flex;
 }
+.winner {
+  font-size: 22px;
+  font-weight: bolder;
+}
+.isyou {
+  color: green;
+}
+.isnotyou {
+  color: gray;
+}
+
+.winnerisyou,
+.winnerisnotyou { 
+font-size: 28px;
+font-weight: bolder;
+}
+.winnerisyou { color: blue; }
+.winnerisnotyou { color: red; }

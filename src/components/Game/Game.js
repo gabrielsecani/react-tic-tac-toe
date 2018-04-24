@@ -55,10 +55,14 @@ class Game extends React.Component {
   componentDidMount() {
     if(this.online) {
       const handle = (v)=>{
-        this.handleGameStateChange(v);
         this.authUid = firebaseAuth.currentUser.uid;
-        if( ! this.state.online_loaded) this.local_setState( {online_loaded: true} );
-      } 
+        v = this.checkPlayers(v);
+
+        if( ! this.state.online_loaded) v.online_loaded = true;
+
+        this.handleGameStateChange(v);
+        // this.local_setState( {online_loaded: true} );
+      }
       const reason = reason => {
         console.error(reason);
         alert(reason);
@@ -69,6 +73,23 @@ class Game extends React.Component {
 
   componentWillUnmount() {
     GameAPIs.off();
+  }
+
+  checkPlayers(stt) {
+    stt.readonly = false;    
+    if (stt.playerX !== this.authUid && stt.playerO !== this.authUid) {
+      if (!stt.playerX){
+        stt.playerX = this.authUid;
+        this.setState({playerX: stt.playerX});
+      } else 
+      if (!stt.playerO){
+          stt.playerO = this.authUid;
+          this.setState({playerO: stt.playerO});
+      } else {
+        stt.readonly = true;
+      }
+    }
+    return stt;
   }
 
   handleGameStateChange(stt) {
@@ -123,6 +144,9 @@ class Game extends React.Component {
   }
 
   handleClick(i) {
+    if (this.state.readonly) {
+      return;
+    }
     if (this.state.stepNumber < this.state.history.length-1) {
       alert("Game was set read-only when you change step before.\n Go to the last move (#"+(this.state.history.length-1)+") to back to the game!");
       return;
@@ -175,10 +199,16 @@ class Game extends React.Component {
     const winner = this.calculateWinner(current.squares, this.state.boardSize);
 
     let status;
+    const isyou = (this.state['player'+this.nextPlayerSymbol()] === this.authUid)
     if (winner) {
-      status = 'Winner: ' + winner;
+      status = 'Winner: ' + winner + ' ';
     } else {
-      status = 'Next player: ' + (this.nextPlayerSymbol());
+      status = 'Next player: ' + (this.nextPlayerSymbol() + " ")
+    }
+    if (isyou) {
+      status += '(You)';
+    } else {
+      status += '(Other)';
     }
 
     const moves = gameHistory.map((step, move) => {
@@ -197,7 +227,7 @@ class Game extends React.Component {
         (<div>This is an online game</div>):
         (<div>
           <label htmlFor="boardsize">Select board size: </label>
-          <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
+          <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)} value={this.state.boardSize}>{
             Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
               <option key={number.toString()} value={number}>{number}</option>
           ))}</select>
@@ -222,7 +252,7 @@ class Game extends React.Component {
               />
           </div>
           <div className="game-info">
-            <div>{status}</div>
+            <div className={[winner?'winner':'', (isyou?'isyou':'isnotyou')].join('')}>{status}</div>
             {this.options.showHistory?(<ol><h3>History of game moves:</h3>{moves}</ol>):""}
           </div>
         </section>
