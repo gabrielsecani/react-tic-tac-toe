@@ -41,6 +41,7 @@ class GameState {
       this.winner = data.winner;
       this.playerO = data.playerO;
       this.playerX = data.playerX;
+      this.nextGame = data.nextGame;
       
       if (!data.history && data.boardSize) {
         this.history = [{
@@ -83,6 +84,7 @@ class GameState {
    */
   toFBStorage() {
     const obj = {};
+    if(this.nextGame!==undefined) obj.nextGame = this.nextGame||null;
     if(this.boardSize!==undefined) obj.boardSize = this.boardSize||null;
     if(this.createdAt!==undefined) obj.createdAt = this.createdAt||null;
     if(this.gameId!==undefined) obj.gameId = this.gameId||null;

@@ -187,6 +187,28 @@ class Game extends React.Component {
     this.setState({boardSize: parseInt(event.currentTarget.value, 10)})
   }
 
+  gototheGame(nextGame) {
+    this.props.history.push('/play/'+this.state.nextGame);
+  }
+  startNewGame() {
+    const newstate = {
+      name: this.state.name,
+      boardSize: this.state.boardSize,
+      player: this.whoami(),
+    }
+    GameAPIs.newGame(newstate).then(
+      Id => 
+        this.setState(
+          {nextGame: Id}, 
+          ()=>this.props.history.push('/play/'+Id)
+        )
+    );
+  }
+
+  whoami() {
+    return (this.authUid === this.state.playerO)?'O':'X';
+  }
+
   render() {
 
     if (this.online && !this.state.online_loaded) {
@@ -205,8 +227,8 @@ class Game extends React.Component {
     const winner = this.state.winner || this.calculateWinner(current.squares, this.state.boardSize);
     
     let status;
-    const whoami = (this.authUid === this.state.playerO)?'O':'X';
-    let isyou = (whoami === this.nextPlayerSymbol());
+    
+    let isyou = (this.whoami() === this.nextPlayerSymbol());
     
     if (winner) {
       status = 'Winner: ' + winner + ' ';
@@ -244,9 +266,17 @@ class Game extends React.Component {
           ))}</select>
         </div>);
 
-    const WhoAmI = () => 
+    const WhoAmIDiv = () => 
       (this.online)?
-        (<div className="isyou">You are the: {whoami}</div>):(<div/>)
+        (<div className="isyou">You are the: {this.whoami()}</div>):(<div/>)
+
+    const CreateOrFollow = () => (
+      winner?
+        this.state.nextGame?
+          (<button onClick={()=> this.gototheGame(this.nextGame)}>Go to the new game created?</button>)
+          :(<button onClick={()=> this.startNewGame(this)}>Start a new like this</button>)
+        : (<div>.</div>)
+    );
 
     return (
       <div className="game">
@@ -268,8 +298,9 @@ class Game extends React.Component {
               />
           </div>
           <div className="game-info">
-            <WhoAmI/>
+            <WhoAmIDiv/>
             <div className={[winner?'winner':'', (isyou?'isyou':'isnotyou')].join('')}>{status}</div>
+            <CreateOrFollow/>
             {this.options.showHistory?(<ol><h3>History of game moves:</h3>{moves}</ol>):""}
           </div>
         </section>
