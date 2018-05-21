@@ -12,7 +12,7 @@
       "$gameId": {
         ".indexOn": ["createdAt"],
         ".read": "auth != null",
-        ".write": "auth != null",
+        ".write": "auth != null"
       }
     }
   }
