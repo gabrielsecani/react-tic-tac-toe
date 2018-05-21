@@ -30,6 +30,7 @@ class Game extends React.Component {
       this.local_setState = this.setState;
       this.setState = this.setGameState;
     // }
+    
   }
 
   setGameState(stt, callback=null, local=false) {
@@ -76,7 +77,7 @@ class Game extends React.Component {
   }
 
   checkPlayers(stt) {
-    stt.readonly = false;    
+    stt.readonly = false;
     if (stt.playerX !== this.authUid && stt.playerO !== this.authUid) {
       if (!stt.playerX){
         stt.playerX = this.authUid;
@@ -86,9 +87,10 @@ class Game extends React.Component {
           stt.playerO = this.authUid;
           this.setState({playerO: stt.playerO});
       } else {
-        stt.readonly = true;
+        // set readonly, only if is an online game
+        stt.readonly = !this.state.online;
       }
-    }
+    }    
     return stt;
   }
 
@@ -160,7 +162,8 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    if (this.calculateWinner(squares, this.state.boardSize) || squares[i]) {
+    const winner = this.calculateWinner(squares, this.state.boardSize);
+    if (winner || squares[i]) {
       return;
     }
     squares[i] = this.nextPlayerSymbol();
@@ -169,6 +172,8 @@ class Game extends React.Component {
         squares: squares,
       }]),
       stepNumber: history.length,
+      boardSize: this.state.boardSize||3,
+      winner,
     });
   }
 
@@ -196,19 +201,25 @@ class Game extends React.Component {
     if (this.state.boardSize<3) return (<div>Board size is less than minimal 3.</div>);
     const gameHistory = this.state.history;
     const current = gameHistory[this.state.stepNumber];
-    const winner = this.calculateWinner(current.squares, this.state.boardSize);
-
+    //const winner = this.calculateWinner(current.squares, this.state.boardSize);
+    const winner = this.state.winner || this.calculateWinner(current.squares, this.state.boardSize);
+    
     let status;
-    const isyou = (this.state['player'+this.nextPlayerSymbol()] === this.authUid)
+    const whoami = (this.authUid === this.state.playerO)?'O':'X';
+    let isyou = (whoami === this.nextPlayerSymbol());
+    
     if (winner) {
       status = 'Winner: ' + winner + ' ';
+      isyou = !isyou;
     } else {
       status = 'Next player: ' + (this.nextPlayerSymbol() + " ")
     }
-    if (isyou) {
-      status += '(You)';
-    } else {
-      status += '(Other)';
+    if (1||this.state.online) {
+      if (isyou) {
+        status += winner?'You WIN! Congrats!':'Your turn';
+      } else {
+        status += winner?'You loose, sorry...':'Other turn';
+      }
     }
 
     const moves = gameHistory.map((step, move) => {
@@ -233,6 +244,10 @@ class Game extends React.Component {
           ))}</select>
         </div>);
 
+    const WhoAmI = () => 
+      (this.online)?
+        (<div className="isyou">You are the: {whoami}</div>):(<div/>)
+
     return (
       <div className="game">
         <section className="App-intro">
@@ -243,6 +258,7 @@ class Game extends React.Component {
         </section>
         <section className="App-Game">
 
+
           <BoardSizeSelect/>
 
           <div className="game-board">
@@ -252,6 +268,7 @@ class Game extends React.Component {
               />
           </div>
           <div className="game-info">
+            <WhoAmI/>
             <div className={[winner?'winner':'', (isyou?'isyou':'isnotyou')].join('')}>{status}</div>
             {this.options.showHistory?(<ol><h3>History of game moves:</h3>{moves}</ol>):""}
           </div>

@@ -75,7 +75,7 @@
   display: flex;
   flex-flow: column;
 }
-.game-list .id, .many, .date {
+.game-list .state, .many, .date {
   font-size: 12px;
   margin: auto;
 }

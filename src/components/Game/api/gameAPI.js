@@ -38,6 +38,7 @@ class GameState {
       this.createdAt = data.createdAt;
       this.gameId = data.gameId;
       this.name = data.name;
+      this.winner = data.winner;
       this.playerO = data.playerO;
       this.playerX = data.playerX;
       
@@ -65,8 +66,9 @@ class GameState {
       this.playersConnected = 
         (data.playerX?1:0) + 
         (data.playerO?1:0);
-      
-      this.stepNumber = Math.min(data.stepNumber, this.history.length-1);
+
+      const size=this.history.length||1;
+      this.stepNumber = Math.min(data.stepNumber, size-1);
 
       if(typeof this.stepNumber !== 'number') this.stepNumber = 0;
 
@@ -85,6 +87,7 @@ class GameState {
     if(this.createdAt!==undefined) obj.createdAt = this.createdAt||null;
     if(this.gameId!==undefined) obj.gameId = this.gameId||null;
     if(this.name!==undefined) obj.name = this.name||null;
+    if(this.winner!==undefined) obj.winner = this.winner||null;
     if(this.playerO!==undefined) obj.playerO = this.playerO||null;
     if(this.playerX!==undefined) obj.playerX = this.playerX||null;
     if(this.stepNumber!==undefined) obj.stepNumber = this.stepNumber||0;
