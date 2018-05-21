@@ -52,10 +52,10 @@ class Search extends React.Component {
     // console.log('doSearchGame');
     GameAPIs.getGameList(
     list => {
-      const filteredList = (gameSearchName === "") ? list:
-        list.filter(g=>g.name.toUpperCase()
-          .indexOf(gameSearchName.toUpperCase())>=0)
-          .sort((a,b)=> (2-a.playersConnected) * a.createdAt - a.createdAt);
+      let filteredList = (gameSearchName === "") ? list:
+        list.filter(g=>g.name.toUpperCase().indexOf(gameSearchName.toUpperCase())>=0);
+      filteredList = filteredList
+          .sort((a,b) => ( (a.playersConnected-b.playersConnected)*1000 + (a.history.length-b.history.length) ));
       this.setState({
         gameList: filteredList,
       });
@@ -105,9 +105,11 @@ class Search extends React.Component {
               <div className="item">
                 <div className="name">{list.name}</div>
                 <div className="row">
-                  <div className="many">{list.playersConnected||0} connected</div>
+                  <div className="many">{list.playersConnected||0} player{list.playersConnected===2?"s":""}</div>
                   <div className="date">{list.createdAtString}</div>
-                  <div className="id">{list.gameId}</div>
+                  <div className="state">
+                    {(list.winner)?"Winner: "+list.winner:list.stepNumber+" move"+(list.stepNumber>1?"s":"")}
+                  </div>
                 </div>
               </div>
             </li>)
