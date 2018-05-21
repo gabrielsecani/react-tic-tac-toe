@@ -43,6 +43,7 @@
 
 section {
   margin: auto;
+  display: grid;
 }
 .App-Rules{
   width: 320px;
