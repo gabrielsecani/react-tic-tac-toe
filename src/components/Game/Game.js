@@ -187,9 +187,10 @@ class Game extends React.Component {
     this.setState({boardSize: parseInt(event.currentTarget.value, 10)})
   }
 
-  gototheGame(nextGame) {
-    this.props.history.push('/play/'+this.state.nextGame);
+  gototheGame(nextGameId) {
+    this.props.history.push('/play/'+this.state.nextGameId);
   }
+  
   startNewGame() {
     const newstate = {
       name: this.state.name,
@@ -199,7 +200,7 @@ class Game extends React.Component {
     GameAPIs.newGame(newstate).then(
       Id => 
         this.setState(
-          {nextGame: Id}, 
+          { nextGameId: Id }, 
           ()=>this.props.history.push('/play/'+Id)
         )
     );
@@ -272,8 +273,8 @@ class Game extends React.Component {
 
     const CreateOrFollow = () => (
       winner?
-        this.state.nextGame?
-          (<button onClick={()=> this.gototheGame(this.nextGame)}>Go to the new game created?</button>)
+        this.state.nextGameId?
+          (<button onClick={()=> this.gototheGame(this.nextGameId)}>Go to the new game created?</button>)
           :(<button onClick={()=> this.startNewGame(this)}>Start a new like this</button>)
         : (<div>.</div>)
     );
