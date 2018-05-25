@@ -1,4 +1,4 @@
-import { firebaseDb } from '../../Fire';
+import BaseAPIClass from './BaseAPI';
 
 //import hash from 'object-hash';
 
@@ -102,32 +102,11 @@ class GameState {
 
 }
 
-class GameAPIClass {
+class GameAPIClass extends BaseAPIClass {
 
-  // constructor () {
-  //   this.ref=this.getRef();
-  // }
-
-  off() {
-    this.getRef().off();
-  }
-
-  getRef() {
-    if(!this.ref)
-      this.ref = firebaseDb.ref('/gameState');
-    return this.ref;
-  }
-  getRefDelete() {
-    if(!this.ref)
-      this.ref = firebaseDb.ref('/gameState');
-    return this.ref;
-  }
-
-  getNodeVal(childSnapshot) {
-    return {
-      key: childSnapshot.key,
-      ...childSnapshot.val()
-    }
+  constructor () {
+    super();
+    this.refURL = '/gameState';
   }
 
   getGameList(resolve, reject) {
@@ -151,16 +130,12 @@ class GameAPIClass {
   }
 
   deleteGame(game){
-    this.getRefDelete().set({[game.gameId]: game},
-      (a)=>{
-        if(a)
-        this.getRef().set({[game.gameId]: null});
-      });
+    this.getRef().set({[game.gameId]: null});
   }
 
   newGame(game) {
     return new Promise( (resolve, reject) => {
-      // const gameId = firebaseDb.ref().child('gameList')
+      // const gameId = this.firebaseDb.ref().child('gameList')
       const gameId = this.getRef().push().key;
       // const gameId = hash.sha1(hash.sha1(game));
       const newListItem = {
@@ -179,14 +154,6 @@ class GameAPIClass {
         (r) => reject && reject(r)
       );
     });
-  }
-
-  getUserId() {
-    return firebaseDb.app.auth().currentUser.uid;
-  }
-
-  sleep (time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
   }
 
   /**
@@ -226,7 +193,7 @@ class GameAPIClass {
   }
 
   /**
-   * 
+   * upload game state to firebase db
    * @param {string} gameId 
    * @param {GameState} gameState 
    */
@@ -239,6 +206,8 @@ class GameAPIClass {
   }
 }
 
-const GameAPIs = new GameAPIClass();
+if (!window.GameAPI$) {
+  window.GameAPI$ = new GameAPIClass();
+}
 
-export default GameAPIs;
+export default window.GameAPI$;

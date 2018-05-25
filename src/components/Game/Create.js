@@ -1,5 +1,5 @@
 import React from 'react';
-import GameAPIs from './api/gameAPI';
+import GameAPI from './api/GameAPI';
 import '../Game/Game.css';
 
 class Create extends React.Component {
@@ -28,7 +28,7 @@ class Create extends React.Component {
   }
 
   createGame(event){
-    GameAPIs.newGame(this.state).then(
+    GameAPI.newGame(this.state).then(
       Id => this.props.history.push('/play/'+Id)
     );
     event.preventDefault();

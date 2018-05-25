@@ -1,7 +1,7 @@
 import React from 'react';
 // import MyInput from '../MyInput';
 // import ReactDOM from 'react-dom';
-import GameAPIs from './api/gameAPI';
+import GameAPI from './api/GameAPI';
 import '../Game/Game.css';
 
 class Tempo {
@@ -44,13 +44,13 @@ class Search extends React.Component {
   }
 
   componentWillUnmount() {
-    GameAPIs.off();
+    GameAPI.off();
   }
 
   doSearchGame() {
     const gameSearchName = this.searchRef.value;
     // console.log('doSearchGame');
-    GameAPIs.getGameList(
+    GameAPI.getGameList(
     list => {
       let filteredList = (gameSearchName === "") ? list:
         list.filter(g=>g.name.toUpperCase().indexOf(gameSearchName.toUpperCase())>=0);

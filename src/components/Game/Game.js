@@ -2,7 +2,7 @@ import React from 'react';
 // import ReactDOM from 'react-dom';
 import Board from './Board';
 import './Game.css';
-import GameAPIs from './api/gameAPI';
+import GameAPI from './api/GameAPI';
 import { firebaseAuth } from '../Fire';
 
 class Game extends React.Component {
@@ -36,7 +36,7 @@ class Game extends React.Component {
   setGameState(stt, callback=null, local=false) {
     if (this.online && !local) {
       //update firebase and let it fire listener handle
-      GameAPIs.setGameState(this.gameId, stt)
+      GameAPI.setGameState(this.gameId, stt)
         .then( () => {
           // console.log('Game.setGameState.then:done ',stt);
           this.setState(stt, callback, true);
@@ -68,12 +68,12 @@ class Game extends React.Component {
         console.error(reason);
         alert(reason);
       }
-      GameAPIs.getGameState(this.gameId, handle, reason);
+      GameAPI.getGameState(this.gameId, handle, reason);
     }
   }
 
   componentWillUnmount() {
-    GameAPIs.off();
+    GameAPI.off();
   }
 
   checkPlayers(stt) {
@@ -197,7 +197,7 @@ class Game extends React.Component {
       boardSize: this.state.boardSize,
       player: this.whoami(),
     }
-    GameAPIs.newGame(newstate).then(
+    GameAPI.newGame(newstate).then(
       Id => 
         this.setState(
           { nextGameId: Id }, 
