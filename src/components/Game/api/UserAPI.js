@@ -31,69 +31,26 @@ class UserState {
    */
   toFBStorage() {
     const obj = {};
-    if(this.userId!==undefined) obj.userId = this.userId||null;
-    if(this.name!==undefined) obj.name = this.name||null;
-    if(this.games!==undefined) obj.games = this.games||null;
+    if (this.userId!==undefined) obj.userId = this.userId||null;
+    if (this.name!==undefined) obj.name = this.name||null;
+    if (this.authtype!==undefined) obj.authtype = this.authtype||null;
+    if (this.games!==undefined) obj.games = this.games||null;
     return obj;
+  }
+
+  addGame(gameId) {
+    if (!Array.isArray(this.games)) this.games = [];
+    if (!this.games.contains(gameId)) {
+      this.games.push(gameId);
+    }
   }
 }
 
-class UserAPIClass extends BaseAPIClass{
+class UserAPIClass extends BaseAPIClass {
 
   constructor () {
     super();
-    this.refURL = '/users/'+this.getUserId();
-  }
-
-  getUserState(resolve, reject) {
-    const getValue = (snapshot) => {
-      var list = [];
-      snapshot.forEach( (childSnapshot) => {
-        // const childKey = childSnapshot.key;
-        const childData = childSnapshot.val();
-        const val = new UserState(childData);
-        if (val.error) {
-          console.error(val.error);
-          reject&&reject(val.error);
-        } else {
-          list.push(val);
-        }
-      });
-      resolve && resolve(list);
-    }//get value
-    
-    this.getRef().on('value', getValue );
-  }
-
-  deleteGame(game){
-    this.getRefDelete().set({[game.gameId]: game},
-      (a)=>{
-        if(a)
-        this.getRef().set({[game.gameId]: null});
-      });
-  }
-
-  newGame(game) {
-    return new Promise( (resolve, reject) => {
-      // const gameId = firebaseDb.ref().child('gameList')
-      const gameId = this.getRef().push().key;
-      // const gameId = hash.sha1(hash.sha1(game));
-      const newListItem = {
-        [gameId]: 
-          new UserState({
-            gameId,
-            boardSize: game.boardSize,
-            createdAt: new Date().getTime(),
-            ['player'+game.player]: this.getUserId(),
-            name: game.name,
-          }).toFBStorage()
-      };
-
-      this.getRef().update(newListItem).then(
-        () => resolve && resolve(gameId), 
-        (r) => reject && reject(r)
-      );
-    });
+    this.refURL = '/users/';
   }
 
   /**
@@ -105,24 +62,24 @@ class UserAPIClass extends BaseAPIClass{
    * @param {string} type default is 'on'
    * @param {string} eventType default is 'value', could be "value", "child_added", "child_removed", "child_changed", or "child_moved".
    */
-  getGameState(gameId, resolve, reject, type='on', eventType='value') {
+  getUserState(resolve, reject, type='on', eventType='value') {
     const thenExec = (s) => {
       const val = s.val();
       // console.log('thenExec', val);
       if( !!!val ) {
-        reject&&reject("Game not found");
+        reject&&reject("User not found");
         return;
       }
-      let gamestate = new UserState(val);
-      if (gamestate === null || gamestate.error) {
-        reject&&reject('Game State error. ' + gamestate.error );
+      let userstate = new UserState(val);
+      if (userstate === null || userstate.error) {
+        reject&&reject('User State error. ' + userstate.error );
       } else {
-        resolve&&resolve(gamestate);
+        resolve&&resolve(userstate);
       }
     };
 
-    const child = this.getRef().child(gameId);
-    if( type === 'on' ) {
+    const child = this.getRef().child(this.getUserId());
+    if ( type === 'on' ) {
       // const onn=child.on('value',
       //   (a,b)=>console.log('callback',a,b)
       // );
@@ -135,12 +92,12 @@ class UserAPIClass extends BaseAPIClass{
   /**
    * 
    * @param {string} gameId 
-   * @param {UserState} gameState 
+   * @param {UserState} userState 
    */
-  setGameState(gameId, gameState) {
+  setUserState(userState) {
     return new Promise( (resolve, reject) => {
-      const gs = new UserState(gameState).toFBStorage()
-      const child = this.getRef().child(gameId);
+      const gs = new UserState(userState).toFBStorage()
+      const child = this.getRef().child(this.getUserId());
       child.update(gs, resolve).then(resolve, reject );
     });
   }
@@ -149,5 +106,6 @@ class UserAPIClass extends BaseAPIClass{
 if (!window.UserAPI$) {
     window.UserAPI$ = new UserAPIClass();
 }
+const UserAPI = window.UserAPI$;
 
-export default window.UserAPI$;
+export default UserAPI;

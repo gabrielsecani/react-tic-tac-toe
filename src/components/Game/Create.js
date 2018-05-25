@@ -28,9 +28,7 @@ class Create extends React.Component {
   }
 
   createGame(event){
-    GameAPI.newGame(this.state).then(
-      Id => this.props.history.push('/play/'+Id)
-    );
+    GameAPI.newGame(this.state).then(Id => this.props.history.push('/play/'+Id));
     event.preventDefault();
   }
 

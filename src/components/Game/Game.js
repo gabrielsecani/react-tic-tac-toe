@@ -30,7 +30,7 @@ class Game extends React.Component {
       this.local_setState = this.setState;
       this.setState = this.setGameState;
     // }
-    
+
   }
 
   setGameState(stt, callback=null, local=false) {

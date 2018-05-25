@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import firebase from 'firebase/app';
 import 'firebase/auth';
+import UserAPI from './Game/api/UserAPI';
 
 class UserName extends Component {
   constructor(props) {
@@ -31,9 +32,12 @@ class UserName extends Component {
     const profile = { displayName: this.state.name };
 
     this.firebaseAuth.currentUser.updateProfile(profile)
-      .then(() => {
-        this.setState({ editUserName: false });
-      })
+      .then(() => 
+        UserAPI.setUserState({ name: profile.displayName })
+        .then(()=>
+          this.setState({ editUserName: false })
+        )
+      )
       .catch(error => {
           // An error occured
           console.error(error);
