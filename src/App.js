@@ -22,10 +22,10 @@ function MenuList(props){
   </ul>);
 }
 
-class AppHeader extends Component {  
+class AppHeader extends Component {
   handleAuthStateChange(user) {
     // console.log('auth change:', user, firebaseAuth);
-    // this.setState({user});
+    // this.setState({currentUser: user});
   }
 
   render() {
@@ -49,7 +49,7 @@ const NoAuth=()=>(<section className="App-intro">Please do login so have a sit w
 class App extends Component {
   render() {
     return (<div>
-      { (!!!firebaseAuth.currentUser)? <SwitchRouting AppHeader={AppHeader}/> : <NoAuth/> }
+      { (!!!firebaseAuth.currentUser) ? <SwitchRouting AppHeader={AppHeader}/> : <NoAuth/> }
     </div>);
   }
 }

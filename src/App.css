@@ -49,6 +49,10 @@ section {
   width: 320px;
 }
 
+.colorblack {
+  color: black !important;
+}
+
 .button {
   cursor: pointer;
   color: blue;
