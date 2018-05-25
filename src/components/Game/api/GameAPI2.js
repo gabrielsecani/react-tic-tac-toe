@@ -209,5 +209,6 @@ class GameAPIClass extends BaseAPIClass {
 if (!window.GameAPI$) {
   window.GameAPI$ = new GameAPIClass();
 }
+const GameAPI = window.GameAPI$;
 
-export default window.GameAPI$;
+export default GameAPI;
