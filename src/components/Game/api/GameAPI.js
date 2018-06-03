@@ -67,7 +67,8 @@ class GameState {
       this.playersConnected = 
         (data.playerX?1:0) + 
         (data.playerO?1:0);
-
+      
+      if (!this.history) this.history = [];
       const size=this.history.length||1;
       this.stepNumber = Math.min(data.stepNumber, size-1);
 
