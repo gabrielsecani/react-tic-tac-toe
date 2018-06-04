@@ -58,11 +58,11 @@ class UserAPIClass extends BaseAPIClass {
    * The type param is once for get just once time or
    *  on to create an listener handle to catch changes
    *  from firebase 
-   * @param {string} gameId 
+   * @param {string} userId 
    * @param {string} type default is 'on'
    * @param {string} eventType default is 'value', could be "value", "child_added", "child_removed", "child_changed", or "child_moved".
    */
-  getUserState(resolve, reject, type='on', eventType='value') {
+  getUserState(userId, resolve, reject, type='on', eventType='value') {
     const thenExec = (s) => {
       const val = s.val();
       // console.log('thenExec', val);
@@ -78,7 +78,7 @@ class UserAPIClass extends BaseAPIClass {
       }
     };
 
-    const child = this.getRef().child(this.getUserId());
+    const child = this.getRef().child(userId);
     if ( type === 'on' ) {
       // const onn=child.on('value',
       //   (a,b)=>console.log('callback',a,b)

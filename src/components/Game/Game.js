@@ -4,6 +4,7 @@ import Board from './Board';
 import './Game.css';
 import GameAPI from './api/GameAPI';
 import { firebaseAuth } from '../Fire';
+import UserAPI from './api/UserAPI';
 
 class Game extends React.Component {
 
@@ -79,19 +80,38 @@ class Game extends React.Component {
   checkPlayers(stt) {
     stt.readonly = false;
     if (stt.playerX !== this.authUid && stt.playerO !== this.authUid) {
-      if (!stt.playerX){
+      if (!stt.playerX) {
         stt.playerX = this.authUid;
         this.setState({playerX: stt.playerX});
       } else 
-      if (!stt.playerO){
+      if (!stt.playerO) {
           stt.playerO = this.authUid;
           this.setState({playerO: stt.playerO});
       } else {
         // set readonly, only if is an online game
         stt.readonly = !this.state.online;
       }
-    }    
+    }  
+    if(this.state.online) {
+      // getPlayerInfo
+      UserAPI.getUserState(stt.playerX, this.handleUserInfoX);
+      UserAPI.getUserState(stt.playerO, this.handleUserInfoO);
+    }
     return stt;
+  }
+
+  handleUserInfoX(user){
+    this.handleUserInfo('X');
+  }
+  handleUserInfoO(user){
+    this.handleUserInfo('O');
+  }
+
+  handleUserInfo(kind, user){
+    const userinfo = {}
+    console.log(kind, user, this.state);
+    Object.assign(userinfo, this.state['userInfo'+kind], user);
+    this.setState({['userInfo'+kind]: userinfo});
   }
 
   handleGameStateChange(stt) {
@@ -279,6 +299,26 @@ class Game extends React.Component {
         : (<div>.</div>)
     );
 
+    const PlayersConnected = () => (
+      <div className="players">
+      {!this.state.playerX?(<div className="player">Player not connected</div>): (
+      <div className="player">
+        <div className="image"><img src="X"/></div>
+        <div className="name">{this.state.playerX}</div>
+        <div className="stats"></div>
+      </div>
+      )}
+      {!this.state.playerO?(<div className="player">Player not connected</div>): (
+        <div className="player">
+          <div className="image"><img src="O"/></div>
+          <div className="name">{this.state.playerO}</div>
+          <div className="stats"></div>
+        </div>
+      )}
+      </div>
+    );
+
+
     return (
       <div className="game">
         <section className="App-intro">
@@ -289,8 +329,11 @@ class Game extends React.Component {
         </section>
         <section className="App-Game">
 
-
           <BoardSizeSelect/>
+
+          <div className="game-info">
+            <PlayersConnected/>
+          </div>
 
           <div className="game-board">
             <Board boardSize={this.state.boardSize}
@@ -298,8 +341,8 @@ class Game extends React.Component {
               onClick={(i) => this.handleClick(i)}
               />
           </div>
+          <WhoAmIDiv/>
           <div className="game-info">
-            <WhoAmIDiv/>
             <div className={[winner?'winner':'', (isyou?'isyou':'isnotyou')].join('')}>{status}</div>
             <CreateOrFollow/>
             {this.options.showHistory?(<ol><h3>History of game moves:</h3>{moves}</ol>):""}

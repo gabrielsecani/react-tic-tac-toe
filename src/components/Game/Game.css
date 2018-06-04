@@ -104,3 +104,20 @@ font-weight: bolder;
 }
 .winnerisyou { color: blue; }
 .winnerisnotyou { color: red; }
+
+
+.players{
+  display: flex;
+}
+.player{
+  display: flex;
+  flex-direction: column;
+  margin: 15px;
+}
+.player .name{
+  font-size: 18px;
+  font-weight: bold;
+}
+.player .stats{
+  font-size: 14px;
+}
