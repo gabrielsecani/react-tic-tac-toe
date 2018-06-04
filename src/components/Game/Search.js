@@ -34,6 +34,7 @@ class Search extends React.Component {
     
     this.state = {
       gameList: "Loading...",
+      dayFilter: 2,
     }
 
   }
@@ -49,13 +50,20 @@ class Search extends React.Component {
 
   doSearchGame() {
     const gameSearchName = this.searchRef.value;
-    // console.log('doSearchGame');
-    GameAPI.getGameList(
-    list => {
+
+    GameAPI.getGameList(list => {
+      const dayFilter = (new Date().getTime()) - (this.state.dayFilter * 1000*60*60*24);
+      
       let filteredList = (gameSearchName === "") ? list:
-        list.filter(g=>g.name.toUpperCase().indexOf(gameSearchName.toUpperCase())>=0);
-      filteredList = filteredList
-          .sort((a,b) => ( (a.playersConnected-b.playersConnected)*1000 + (a.history.length-b.history.length) ));
+        list.filter(g=>(g.name||'').toUpperCase().indexOf(gameSearchName.toUpperCase())>=0);
+
+      filteredList = filteredList.filter(g => (g.createdAt >= dayFilter) );
+      // order by createdAt
+      filteredList = filteredList.sort(
+        (a,b) => ( (a.playersConnected-b.playersConnected)*1000000 + (a.createdAt-b.createdAt)*1000 + (a.history.length-b.history.length) ) 
+      );
+
+      if(Array.isArray(filteredList)&& filteredList.length===0) filteredList = 'No game found, try to search again';
       this.setState({
         gameList: filteredList,
       });
@@ -80,7 +88,14 @@ class Search extends React.Component {
     //get the game selected on filling the player left
     this.props.history.push('/play/'+item.gameId);
   }
-  
+
+  handleDayFilterChange(event){
+    this.setState({dayFilter: event.target.value})
+    this.tempo.run(300).then(()=>
+      this.doSearchGame()
+    )
+  }
+
   render() {
     // const GameSearch = () => {
     //   return (<div>
@@ -123,6 +138,21 @@ class Search extends React.Component {
           Here you are! Well, to join some one game you need 
           to be logged so just tell me a game name on the
           box below and click on Search button right over there!
+        </div>
+
+        <div className="telling">
+          <label htmlFor="dayFilter">Show last
+            <select name="dayFilter" onChange={this.handleDayFilterChange.bind(this)} value={this.state.dayFilter}>
+              <option value="1">1 day</option>
+              <option value="2">2 days</option>
+              <option value="3">3 days</option>
+              <option value="7">7 days</option>
+              <option value="20">20 days</option>
+              <option value="31">1 month</option>
+              <option value="92">3 months</option>
+              <option value="185">6 months</option>
+              <option value="365">1 year</option>
+            </select> games</label>
         </div>
 
         <div>
