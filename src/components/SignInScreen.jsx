@@ -33,8 +33,10 @@ class UserName extends Component {
 
     this.firebaseAuth.currentUser.updateProfile(profile)
       .then(() => 
-        UserAPI.setUserState({ name: profile.displayName })
-        .then(()=>
+        UserAPI.setUserState({
+          name: profile.displayName,
+          photoURL: this.firebaseAuth.currentUser.photoURL,
+        }).then(()=>
           this.setState({ editUserName: false })
         )
       )

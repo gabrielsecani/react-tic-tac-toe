@@ -296,14 +296,14 @@ class Game extends React.Component {
       <div className="players">
         {!this.state.userInfoX?(<div className="player">Player not connected</div>):(
         <div className={`player ${this.nextPlayerSymbol()=='X'?'isyou':'isnot'}`}>
-          <div className="image"><img src={this.state.userInfoO.img}/></div>
+          <div className="image"><img src={this.state.userInfoO.photoURL}/></div>
           <div className="name">{this.state.userInfoX.name}</div>
           <div className="stats">{this.state.userInfoX.games.length} games</div>
         </div>
         )}
         {!this.state.userInfoO?(<div className="player">Player not connected</div>):(
         <div className={`player ${this.nextPlayerSymbol()=='O'?'isyou':'isnot'}`}>
-          <div className="image"><img src={this.state.userInfoO.img}/></div>
+          <div className="image"><img src={this.state.userInfoO.photoURL}/></div>
           <div className="name">{this.state.userInfoO.name}</div>
           <div className="stats">{this.state.userInfoO.games.length} games</div>
         </div>
