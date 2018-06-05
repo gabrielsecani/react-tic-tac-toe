@@ -109,10 +109,22 @@ font-weight: bolder;
 .players{
   display: flex;
 }
+.player .isyou{
+  border: 1px solid #0F0;
+}
 .player{
+  margin: 15px;
   display: flex;
   flex-direction: column;
-  margin: 15px;
+  width: 170px;
+}
+.player *{
+  margin: 5px;
+}
+.player .image img {
+  width: 48px;
+  /* <img src="https://png.icons8.com/color/50/000000/gender-neutral-user.png"> */
+  border-radius: 50%;
 }
 .player .name{
   font-size: 18px;

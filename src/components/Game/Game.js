@@ -56,7 +56,7 @@ class Game extends React.Component {
 
   componentDidMount() {
     if(this.online) {
-      const handle = (v)=>{
+      const handle = v => {
         this.authUid = firebaseAuth.currentUser.uid;
         v = this.checkPlayers(v);
 
@@ -92,26 +92,19 @@ class Game extends React.Component {
         stt.readonly = !this.state.online;
       }
     }  
-    if(this.state.online) {
-      // getPlayerInfo
-      UserAPI.getUserState(stt.playerX, this.handleUserInfoX);
-      UserAPI.getUserState(stt.playerO, this.handleUserInfoO);
-    }
+
+    // getPlayerInfo
+    UserAPI.getUserState(stt.playerX, (user) => this.handleUserInfo('X', user));
+    UserAPI.getUserState(stt.playerO, (user) => this.handleUserInfo('O', user));
+
     return stt;
   }
 
-  handleUserInfoX(user){
-    this.handleUserInfo('X');
-  }
-  handleUserInfoO(user){
-    this.handleUserInfo('O');
-  }
-
   handleUserInfo(kind, user){
-    const userinfo = {}
+    const userInfo = {}
     console.log(kind, user, this.state);
-    Object.assign(userinfo, this.state['userInfo'+kind], user);
-    this.setState({['userInfo'+kind]: userinfo});
+    Object.assign(userInfo, this.state['userInfo'+kind], user);
+    this.setGameState({['userInfo'+kind]: userInfo}, null, true);
   }
 
   handleGameStateChange(stt) {
@@ -298,26 +291,25 @@ class Game extends React.Component {
           :(<button onClick={()=> this.startNewGame(this)}>Start a new like this</button>)
         : (<div>.</div>)
     );
-
+  
     const PlayersConnected = () => (
       <div className="players">
-      {!this.state.playerX?(<div className="player">Player not connected</div>): (
-      <div className="player">
-        <div className="image"><img src="X"/></div>
-        <div className="name">{this.state.playerX}</div>
-        <div className="stats"></div>
-      </div>
-      )}
-      {!this.state.playerO?(<div className="player">Player not connected</div>): (
-        <div className="player">
-          <div className="image"><img src="O"/></div>
-          <div className="name">{this.state.playerO}</div>
-          <div className="stats"></div>
+        {!this.state.userInfoX?(<div className="player">Player not connected</div>):(
+        <div className={`player ${this.nextPlayerSymbol()=='X'?'isyou':'isnot'}`}>
+          <div className="image"><img src={this.state.userInfoO.img}/></div>
+          <div className="name">{this.state.userInfoX.name}</div>
+          <div className="stats">{this.state.userInfoX.games.length} games</div>
         </div>
-      )}
+        )}
+        {!this.state.userInfoO?(<div className="player">Player not connected</div>):(
+        <div className={`player ${this.nextPlayerSymbol()=='O'?'isyou':'isnot'}`}>
+          <div className="image"><img src={this.state.userInfoO.img}/></div>
+          <div className="name">{this.state.userInfoO.name}</div>
+          <div className="stats">{this.state.userInfoO.games.length} games</div>
+        </div>
+        )}
       </div>
     );
-
 
     return (
       <div className="game">
@@ -331,9 +323,7 @@ class Game extends React.Component {
 
           <BoardSizeSelect/>
 
-          <div className="game-info">
-            <PlayersConnected/>
-          </div>
+          <PlayersConnected/>
 
           <div className="game-board">
             <Board boardSize={this.state.boardSize}
