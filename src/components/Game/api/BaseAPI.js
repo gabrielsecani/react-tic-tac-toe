@@ -19,7 +19,14 @@ class BaseAPIClass {
    * get auth user id
   */
   getUserId() {
-    return firebaseDb.app.auth().currentUser.uid;
+    return this.getAuthUser().uid;
+  }
+
+  /**
+   * get whole Auth User 
+   */
+  getAuthUser() {
+    return firebaseDb.app.auth().currentUser;
   }
 
   /**

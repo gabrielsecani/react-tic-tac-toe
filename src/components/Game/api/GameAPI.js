@@ -37,7 +37,7 @@ class GameState {
       this.boardSize = data.boardSize;
       this.createdAt = data.createdAt;
       this.gameId = data.gameId;
-      this.name = data.name||'noname';
+      this.name = data.name || 'noname';
       this.winner = data.winner;
       this.playerO = data.playerO;
       this.playerX = data.playerX;

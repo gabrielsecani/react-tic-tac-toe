@@ -4,7 +4,7 @@ import Board from './Board';
 import './Game.css';
 import GameAPI from './api/GameAPI';
 import { firebaseAuth } from '../Fire';
-import UserAPI from './api/UserAPI';
+import UserAPI, { UserState } from './api/UserAPI';
 
 class Game extends React.Component {
 
@@ -60,10 +60,10 @@ class Game extends React.Component {
         this.authUid = firebaseAuth.currentUser.uid;
         v = this.checkPlayers(v);
 
-        if( ! this.state.online_loaded) v.online_loaded = true;
+        if( ! this.state.loaded_online) v.loaded_online = true;
 
         this.handleGameStateChange(v);
-        // this.local_setState( {online_loaded: true} );
+        // this.local_setState( {loaded_online: true} );
       }
       const reason = reason => {
         console.error(reason);
@@ -89,7 +89,7 @@ class Game extends React.Component {
           this.setState({playerO: stt.playerO});
       } else {
         // set readonly, only if is an online game
-        stt.readonly = !this.state.online;
+        stt.readonly = !this.online;
       }
     }  
 
@@ -166,9 +166,9 @@ class Game extends React.Component {
       alert("Game was set read-only when you change step before.\n Go to the last move (#"+(this.state.history.length-1)+") to back to the game!");
       return;
     }
-    if(this.online){
-      if (this.state['player'+this.nextPlayerSymbol()] !== this.authUid){
-        alert("You are not the player. Wait for the other player!");
+    if(this.online) {
+      if (this.state['player'+this.nextPlayerSymbol()] !== this.authUid) {
+        alert("Is not your turn. Please, wait for the other player!\n\nCould be difficult for him.");
         return;
       }
     }
@@ -225,7 +225,7 @@ class Game extends React.Component {
 
   render() {
 
-    if (this.online && !this.state.online_loaded) {
+    if (this.online && !this.state.loaded_online) {
       return (<section className="App-intro">
         <div>
           Loading the online game... <br/>
@@ -250,20 +250,22 @@ class Game extends React.Component {
     } else {
       status = 'Next player: ' + (this.nextPlayerSymbol() + " ")
     }
-    if (1||this.state.online) {
+    console.log(this.online)
+    if (this.online) {
       if (isyou) {
         status += winner?'You WIN! Congrats!':'Your turn';
       } else {
         status += winner?'You loose, sorry...':'Other turn';
       }
     }
+    const Status= ()=> (<div className={`${winner?'winner':''} ${isyou?'isyou':'isnotyou'}`}>{status}</div>);
 
     const moves = gameHistory.map((step, move) => {
       const desc = move ?
         'Go to move #' + move :
         'Go to game begin';
       return (
-        <li key={move}>
+        <li key={move}>        
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
         </li>
       );
@@ -288,26 +290,30 @@ class Game extends React.Component {
       winner?
         this.state.nextGameId?
           (<button onClick={()=> this.gototheGame(this.nextGameId)}>Go to the new game created?</button>)
-          :(<button onClick={()=> this.startNewGame(this)}>Start a new like this</button>)
-        : (<div>.</div>)
+          : (<button onClick={()=> this.startNewGame(this)}>Start a new like this</button>)
+        : (<div/>)
     );
   
+    const PlayerXO = (props) => {
+      const kind = props.kind || '';
+      let user = this.state['userInfo'+kind];
+      if (!(user&&kind)) {
+        user = new UserState({name: "Player " + kind});
+      } else {
+        user = new UserState( user );
+      }
+
+      return (<div className={`player ${this.nextPlayerSymbol() === kind ? 'isyou' : 'isnotyou'}`}>
+        <div className="image"><img src={user.photoURL} alt="O User"/></div>
+        <div className="name">{user.name}</div>
+        <div className="stats">{user.games_length()} games</div>
+      </div> )
+    }
+
     const PlayersConnected = () => (
       <div className="players">
-        {!this.state.userInfoX?(<div className="player">Player not connected</div>):(
-        <div className={`player ${this.nextPlayerSymbol()=='X'?'isyou':'isnot'}`}>
-          <div className="image"><img src={this.state.userInfoO.photoURL}/></div>
-          <div className="name">{this.state.userInfoX.name}</div>
-          <div className="stats">{this.state.userInfoX.games.length} games</div>
-        </div>
-        )}
-        {!this.state.userInfoO?(<div className="player">Player not connected</div>):(
-        <div className={`player ${this.nextPlayerSymbol()=='O'?'isyou':'isnot'}`}>
-          <div className="image"><img src={this.state.userInfoO.photoURL}/></div>
-          <div className="name">{this.state.userInfoO.name}</div>
-          <div className="stats">{this.state.userInfoO.games.length} games</div>
-        </div>
-        )}
+        <PlayerXO kind="X" />
+        <PlayerXO kind="O" />
       </div>
     );
 
@@ -333,9 +339,17 @@ class Game extends React.Component {
           </div>
           <WhoAmIDiv/>
           <div className="game-info">
-            <div className={[winner?'winner':'', (isyou?'isyou':'isnotyou')].join('')}>{status}</div>
+            <Status/>
             <CreateOrFollow/>
-            {this.options.showHistory?(<ol><h3>History of game moves:</h3>{moves}</ol>):""}
+            {this.options.showHistory?(<div className="history">
+              <h3>History of game moves:</h3>
+              <div>
+                {this.state.stepNumber>=1?<button onClick={() => this.jumpTo(this.state.stepNumber-1)}>Prior move</button>:<div/>}
+                {this.state.stepNumber<gameHistory.length-1?<button onClick={() => this.jumpTo(this.state.stepNumber+1)}>Next move</button>:<div/>}
+              </div>
+              <ol>{moves}</ol>
+              </div>
+              ):""}
           </div>
         </section>
         <section className="App-Rules">

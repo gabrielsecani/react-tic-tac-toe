@@ -94,7 +94,7 @@
   color: green;
 }
 .isnotyou {
-  color: gray;
+  opacity: 0.45;
 }
 
 .winnerisyou,
@@ -109,7 +109,7 @@ font-weight: bolder;
 .players{
   display: flex;
 }
-.player .isyou{
+.player > .isyou{
   border: 1px solid #0F0;
 }
 .player{
