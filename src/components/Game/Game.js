@@ -336,16 +336,16 @@ class Game extends React.Component {
               squares={current.squares}
               onClick={(i) => this.handleClick(i)}
               />
-          </div>
-          <WhoAmIDiv/>
+          </div><br/>
+          <WhoAmIDiv/><br/>
           <div className="game-info">
             <Status/>
             <CreateOrFollow/>
             {this.options.showHistory?(<div className="history">
               <h3>History of game moves:</h3>
               <div>
-                {this.state.stepNumber>=1?<button onClick={() => this.jumpTo(this.state.stepNumber-1)}>Prior move</button>:<div/>}
-                {this.state.stepNumber<gameHistory.length-1?<button onClick={() => this.jumpTo(this.state.stepNumber+1)}>Next move</button>:<div/>}
+                {this.state.stepNumber>=1?<button onClick={() => this.jumpTo(this.state.stepNumber-1)}><i className="material-icons">navigate_before</i></button>:<div/>}
+                {this.state.stepNumber<gameHistory.length-1?<button onClick={() => this.jumpTo(this.state.stepNumber+1)}><i className="material-icons">navigate_next</i></button>:<div/>}
               </div>
               <ol>{moves}</ol>
               </div>

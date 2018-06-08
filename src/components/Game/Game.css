@@ -10,7 +10,7 @@
 
 .square {
   background: #fff;
-  border: 1px solid #999;
+  border: 1px solid #888;
   float: left;
   font-size: 24px;
   font-weight: bold;
@@ -60,12 +60,12 @@
 }
 
 .game-list ol li:hover {
-  background-color: darkgrey;
+  background-color: #4FAF9F;
   cursor: pointer;
 }
 
 .game-list ol li {
-  background-color: rgb(242,242,242);
+  background-color: rgb(242,252,242);
   display: block;
   margin: 5px 0px;
   min-height: 45px;
@@ -93,37 +93,38 @@
 .isyou {
   color: green;
 }
+.isyou::before{
+  content: 'Turn is on';
+}
 .isnotyou {
   opacity: 0.45;
 }
 
 .winnerisyou,
 .winnerisnotyou { 
-font-size: 28px;
-font-weight: bolder;
+  font-size: 28px;
+  font-weight: bolder;
 }
 .winnerisyou { color: blue; }
 .winnerisnotyou { color: red; }
 
+.playerX { color: #488083 }
+.playerO { color: #88A666 }
 
-.players{
+.players {
   display: flex;
 }
-.player > .isyou{
-  border: 1px solid #0F0;
-}
-.player{
+.player {
   margin: 15px;
   display: flex;
   flex-direction: column;
   width: 170px;
 }
-.player *{
+.player * {
   margin: 5px;
 }
 .player .image img {
   width: 48px;
-  /* <img src="https://png.icons8.com/color/50/000000/gender-neutral-user.png"> */
   border-radius: 50%;
 }
 .player .name{
