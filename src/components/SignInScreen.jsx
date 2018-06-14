@@ -95,7 +95,15 @@ class SignInScreen extends Component {
       }
     ],
     callbacks: {
-      signInSuccess: () => false,
+      signInSuccess: (auth) => {
+        debugger;
+        UserAPI.setUserState({
+          name: this.firebaseAuth.currentUser.displayName,
+          photoURL: this.firebaseAuth.currentUser.photoURL,
+        }).then(()=>
+          this.setState({ editUserName: false })
+        )
+      },
     },
   };
   
