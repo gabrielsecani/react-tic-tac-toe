@@ -48,9 +48,14 @@ class UserState {
 
   addGame(gameId) {
     if (!Array.isArray(this.games)) this.games = [];
-    if (!this.games.contains(gameId)) {
+    const oldlen = this.games_length();
+    if (!this.games.find(a=>a&&a===gameId)) {
       this.games.push(gameId);
     }
+    if (oldlen !== this.games_length()) {
+      UserAPI.setUserState(this);
+    }
+    return this;
   }
 }
 

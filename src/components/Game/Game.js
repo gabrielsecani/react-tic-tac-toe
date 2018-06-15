@@ -106,6 +106,9 @@ class Game extends React.Component {
     // console.log(kind, user, this.state);
     Object.assign(userInfo, this.state['userInfo'+kind], user);
     this.setGameState({['userInfo'+kind]: userInfo}, null, true);
+    if (this.authUid === userInfo.authUid) {
+      (new UserState(userInfo)).addGame(this.gameId);
+    }
   }
 
   handleGameStateChange(stt) {
@@ -246,20 +249,21 @@ class Game extends React.Component {
     let isyou = (this.whoami() === this.nextPlayerSymbol());
     
     if (winner) {
-      status = 'Winner: ' + winner + ' ';
+      status = 'Winner: ' + winner;
       isyou = !isyou;
     } else {
-      status = 'Next player: ' + (this.nextPlayerSymbol() + " ")
+      status = 'Next player: ' + this.nextPlayerSymbol()
     }
-    
+    let status2="";
     if (this.online) {
       if (isyou) {
-        status += winner?'You WIN! Congrats!':'Your turn';
+        status2 = winner?'You WIN! Congrats!':'Your turn';
       } else {
-        status += winner?'You loose, sorry...':'Other turn';
+        status2 = winner?'You loose, sorry...':'Other turn';
       }
     }
-    const Status= ()=> (<div className={`${winner?'winner':''} ${isyou?'isyou':'isnotyou'}`}>{status}</div>);
+
+    const Status= ()=> (<div className={`${winner?'winner':''}${isyou?'isyou':'isnotyou'}`}>{status}<br/>{status2}</div>);
 
     const moves = gameHistory.map((step, move) => {
       const desc = move ?
@@ -308,7 +312,6 @@ class Game extends React.Component {
         <div className="image"><img src={user.photoURL} alt="O User"/></div>
         <div className="name">{user.name}</div>
         <div className="stats">{user.games_length()} games</div>
-        <div className="stats">{JSON.stringify(user)} games</div>
       </div> )
     }
 
