@@ -93,8 +93,8 @@
 .isyou {
   color: green;
 }
-.isyou::before{
-  content: 'Turn is on';
+.players .isyou::before{
+  content: 'Turn of';
 }
 .isnotyou {
   opacity: 0.45;

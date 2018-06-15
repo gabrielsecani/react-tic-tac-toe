@@ -46,7 +46,7 @@ class Game extends React.Component {
           alert("setGameState:" + reason);
         });
     } else {
-      if(callback){
+      if (callback){
         this.local_setState(stt, callback);
       }else{
         this.local_setState(stt);
@@ -55,12 +55,12 @@ class Game extends React.Component {
   }
 
   componentDidMount() {
-    if(this.online) {
+    if (this.online) {
       const handle = v => {
         this.authUid = firebaseAuth.currentUser.uid;
         v = this.checkPlayers(v);
 
-        if( ! this.state.loaded_online) v.loaded_online = true;
+        if ( ! this.state.loaded_online) v.loaded_online = true;
 
         this.handleGameStateChange(v);
         // this.local_setState( {loaded_online: true} );
@@ -75,6 +75,7 @@ class Game extends React.Component {
 
   componentWillUnmount() {
     GameAPI.off();
+    UserAPI.off();
   }
 
   checkPlayers(stt) {
@@ -89,9 +90,9 @@ class Game extends React.Component {
           this.setState({playerO: stt.playerO});
       } else {
         // set readonly, only if is an online game
-        stt.readonly = !this.online;
+        stt.readonly = this.online;
       }
-    }  
+    }
 
     // getPlayerInfo
     UserAPI.getUserState(stt.playerX, (user) => this.handleUserInfo('X', user));
@@ -100,9 +101,9 @@ class Game extends React.Component {
     return stt;
   }
 
-  handleUserInfo(kind, user){
+  handleUserInfo(kind, user) {
     const userInfo = {}
-    console.log(kind, user, this.state);
+    // console.log(kind, user, this.state);
     Object.assign(userInfo, this.state['userInfo'+kind], user);
     this.setGameState({['userInfo'+kind]: userInfo}, null, true);
   }
@@ -114,7 +115,7 @@ class Game extends React.Component {
 
   calculateWinner(squares, size) {
     let lines = this.winnerLines;
-    if (!lines || lines.length !== (size*2+2)){
+    if (!lines || lines.length !== (size*2+2)) {
       lines = [];
       let col = [];
       let lin = [];
@@ -140,11 +141,11 @@ class Game extends React.Component {
     
     var empate=
       (squares.length === size*size && size*size === this.stepNumber);
-    if(empate)
+    if (empate)
       return "none";
     var winner=null;
     lines.some(line=>{
-      if(line.map(a=>squares[a]).every((current,i,arr)=>(current && arr[0]===current))){
+      if (line.map(a=>squares[a]).every((current,i,arr)=>(current && arr[0]===current))){
         winner = squares[line[0]];
         return true;
       } else {
@@ -166,7 +167,7 @@ class Game extends React.Component {
       alert("Game was set read-only when you change step before.\n Go to the last move (#"+(this.state.history.length-1)+") to back to the game!");
       return;
     }
-    if(this.online) {
+    if (this.online) {
       if (this.state['player'+this.nextPlayerSymbol()] !== this.authUid) {
         alert("Is not your turn. Please, wait for the other player!\n\nCould be difficult for him.");
         return;
@@ -220,7 +221,7 @@ class Game extends React.Component {
   }
 
   whoami() {
-    return (this.authUid === this.state.playerO)?'O':'X';
+    return (this.authUid === this.state.playerO)?'O':(this.authUid === this.state.playerX)?'X':'observer';
   }
 
   render() {
@@ -250,7 +251,7 @@ class Game extends React.Component {
     } else {
       status = 'Next player: ' + (this.nextPlayerSymbol() + " ")
     }
-    console.log(this.online)
+    
     if (this.online) {
       if (isyou) {
         status += winner?'You WIN! Congrats!':'Your turn';
@@ -307,13 +308,14 @@ class Game extends React.Component {
         <div className="image"><img src={user.photoURL} alt="O User"/></div>
         <div className="name">{user.name}</div>
         <div className="stats">{user.games_length()} games</div>
+        <div className="stats">{JSON.stringify(user)} games</div>
       </div> )
     }
 
     const PlayersConnected = () => (
       <div className="players">
-        <PlayerXO kind="X" />
-        <PlayerXO kind="O" />
+        <PlayerXO kind="X" user={this.state.userInfoX}/>
+        <PlayerXO kind="O" user={this.state.userInfoO}/>
       </div>
     );
 

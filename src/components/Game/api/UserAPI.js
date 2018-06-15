@@ -42,7 +42,7 @@ class UserState {
     return obj;
   }
 
-  games_length(){
+  games_length() {
     return (this.games && this.games.length) || 0;
   }
 
@@ -70,20 +70,23 @@ class UserAPIClass extends BaseAPIClass {
    * @param {string} type default is 'on'
    * @param {string} eventType default is 'value', could be "value", "child_added", "child_removed", "child_changed", or "child_moved".
    */
-  getUserState(userId, resolve, reject, type='on', eventType='value') {
-    if(!userId){
+  getUserState(userId, resolve, reject=null, type='on', eventType='value') {
+    if (!userId) {
       return resolve(new UserState({name: ''}));
     }
+    if (!resolve) resolve = (m)=>console.info('UserAPI::getUserState().resolve', m);
+    if (!reject) reject = (m)=>console.info('UserAPI::getUserState().reject', m);
+    
     const thenExec = (s) => {
       const val = s.val();
       // console.log('thenExec', val);
-      if( !!!val ) {
-        reject&&reject({code:404, msg:"User not found"});
+      if ( !!!val ) {
+        reject({code:404, msg:"User not found"});
         return;
       }
       let userstate = new UserState(val);
       if (userstate === null || userstate.error) {
-        reject&&reject('User State error. ' + userstate.error );
+        reject({code:404, msg: 'User State error. ' + userstate.error });
       } else {
         resolve&&resolve(userstate);
       }
@@ -94,7 +97,7 @@ class UserAPIClass extends BaseAPIClass {
       // const onn=child.on('value',
       //   (a,b)=>console.log('callback',a,b)
       // );
-      child.on(eventType, thenExec, reject );
+      child.on(eventType, (s)=>thenExec(s), reject );
     } else {
       child.once(eventType, thenExec, reject );
     }

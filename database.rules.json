@@ -2,12 +2,12 @@
   "rules": {
     "users": {
       "$uid": {
-        ".read": "$uid === auth.uid",
+        ".read": "true",
         ".write": "$uid === auth.uid"
       }
     },
     "gameState": {
-      ".read": "auth != null",
+      ".read": "true",
       ".write": "auth != null",
       "$gameId": {
         ".indexOn": ["createdAt"],
