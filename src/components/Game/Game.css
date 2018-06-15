@@ -108,8 +108,8 @@
 .winnerisyou { color: blue; }
 .winnerisnotyou { color: red; }
 
-.playerX { color: #488083 }
-.playerO { color: #88A666 }
+.playerX { color: #488989 }
+.playerO { color: #50A050 }
 
 .players {
   display: flex;
