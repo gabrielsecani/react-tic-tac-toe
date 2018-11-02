@@ -23,6 +23,7 @@ class UserState {
       this.name = data.name;
       this.photoURL = data.photoURL || DEFAULT_USER_IMAGE;
       this.games = data.games || [];
+      this.autoPlay = data.autoPlay || false;
     } catch (ex) {
       this.error = ex;
       console.error('UserAPI::constructor()', ex);
