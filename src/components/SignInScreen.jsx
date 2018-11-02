@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import firebase from 'firebase/app';
-//import auth from 'firebase/auth';
 import UserAPI from './Game/api/UserAPI';
 
 class UserName extends Component {
@@ -72,7 +71,7 @@ class AnonyButton extends Component {
     super(props);
     this.firebaseAuth = props.firebaseAuth;
     if (props.hasOwnProperty('loginAnonymous'))
-      this.setState({ loginAnonymous: props.loginAnonymous });
+      Object.assign(this.state, { loginAnonymous: props.loginAnonymous });
   }
   state = {
     name: '',
@@ -157,7 +156,7 @@ class SignInScreen extends Component {
     ],
 
     callbacks: {
-      signInSuccess: (auth) => {
+      signInSuccessWithAuthResult: (auth) => {
         UserAPI.setUserState({
           name: this.firebaseAuth.currentUser.displayName,
           photoURL: this.firebaseAuth.currentUser.photoURL,
