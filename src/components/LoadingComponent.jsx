@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function LoadingComponent (props) {
+export default function LoadingComponent(props) {
   if (props.error) {
     // When the loader has errored
     return <div>Error!</div>;

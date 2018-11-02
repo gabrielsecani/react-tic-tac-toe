@@ -31,8 +31,8 @@ import BaseAPIClass from './BaseAPI';
  * 
  */
 class GameState {
-  constructor(data){
-    if(!data) return;
+  constructor(data) {
+    if (!data) return;
     try {
       this.boardSize = data.boardSize;
       this.createdAt = data.createdAt;
@@ -42,20 +42,20 @@ class GameState {
       this.playerO = data.playerO;
       this.playerX = data.playerX;
       this.nextGame = data.nextGame;
-      
+
       if (!data.history && data.boardSize) {
         this.history = [{
-          squares: Array(this.boardSize*this.boardSize).fill(false),
+          squares: Array(this.boardSize * this.boardSize).fill(false),
         }];
       } else {
         this.history = data.history;
 
-        if(Array.isArray(this.history)){
-          this.history.forEach(v=>{
-            let sq=v.squares;
-            if( ! Array.isArray(sq) ) {
-              let s=Array(this.state.boardSize*this.state.boardSize).fill(null);
-              for (const i in Array(this.state.boardSize*this.state.boardSize).fill(1).map((a,i)=>i)) {
+        if (Array.isArray(this.history)) {
+          this.history.forEach(v => {
+            let sq = v.squares;
+            if (!Array.isArray(sq)) {
+              let s = Array(this.state.boardSize * this.state.boardSize).fill(null);
+              for (const i in Array(this.state.boardSize * this.state.boardSize).fill(1).map((a, i) => i)) {
                 s[i] = sq[i];
               }
             }
@@ -63,19 +63,19 @@ class GameState {
         }
       }
 
-      this.createdAtString = this.createdAt?new Date(this.createdAt).toLocaleString():'';
-      this.playersConnected = 
-        (data.playerX?1:0) + 
-        (data.playerO?1:0);
-      
+      this.createdAtString = this.createdAt ? new Date(this.createdAt).toLocaleString() : '';
+      this.playersConnected =
+        (data.playerX ? 1 : 0) +
+        (data.playerO ? 1 : 0);
+
       if (!this.history) this.history = [];
-      const size=this.history.length||1;
-      this.stepNumber = Math.min(data.stepNumber, size-1);
+      const size = this.history.length || 1;
+      this.stepNumber = Math.min(data.stepNumber, size - 1);
 
-      if(typeof this.stepNumber !== 'number') this.stepNumber = 0;
+      if (typeof this.stepNumber !== 'number') this.stepNumber = 0;
 
-    }catch(ex){
-      this.error=ex;
+    } catch (ex) {
+      this.error = ex;
       console.error('GameAPI::constructor()', ex);
     }
   }
@@ -85,27 +85,26 @@ class GameState {
    */
   toFBStorage() {
     const obj = {};
-    if(this.nextGame!==undefined) obj.nextGame = this.nextGame||null;
-    if(this.boardSize!==undefined) obj.boardSize = this.boardSize||null;
-    if(this.createdAt!==undefined) obj.createdAt = this.createdAt||null;
-    if(this.gameId!==undefined) obj.gameId = this.gameId||null;
-    if(this.name!==undefined) obj.name = this.name||null;
-    if(this.winner!==undefined) obj.winner = this.winner||null;
-    if(this.playerO!==undefined) obj.playerO = this.playerO||null;
-    if(this.playerX!==undefined) obj.playerX = this.playerX||null;
-    if(this.stepNumber!==undefined) obj.stepNumber = this.stepNumber||0;
-    if(typeof obj.stepNumber !== 'number') obj.stepNumber = 0;
-    if(this.history!==undefined) obj.history = (this.history)? this.history: [{
-        squares: Array(this.boardSize).fill(false),
-      }];
+    if (this.nextGame !== undefined) obj.nextGame = this.nextGame || null;
+    if (this.boardSize !== undefined) obj.boardSize = this.boardSize || null;
+    if (this.createdAt !== undefined) obj.createdAt = this.createdAt || null;
+    if (this.gameId !== undefined) obj.gameId = this.gameId || null;
+    if (this.name !== undefined) obj.name = this.name || null;
+    if (this.winner !== undefined) obj.winner = this.winner || null;
+    if (this.playerO !== undefined) obj.playerO = this.playerO || null;
+    if (this.playerX !== undefined) obj.playerX = this.playerX || null;
+    if (this.stepNumber !== undefined) obj.stepNumber = this.stepNumber || 0;
+    if (typeof obj.stepNumber !== 'number') obj.stepNumber = 0;
+    if (this.history !== undefined) obj.history = (this.history) ? this.history : [{
+      squares: Array(this.boardSize).fill(false),
+    }];
     return obj;
   }
-
 }
 
 class GameAPIClass extends BaseAPIClass {
 
-  constructor () {
+  constructor() {
     super();
     this.refURL = '/gameState';
   }
@@ -113,45 +112,45 @@ class GameAPIClass extends BaseAPIClass {
   getGameList(resolve, reject) {
     const getValue = (snapshot) => {
       var list = [];
-      snapshot.forEach( (childSnapshot) => {
+      snapshot.forEach((childSnapshot) => {
         // const childKey = childSnapshot.key;
         const childData = childSnapshot.val();
         const val = new GameState(childData);
         if (val.error) {
           console.error(val.error);
-          reject&&reject(val.error);
+          reject && reject(val.error);
         } else {
           list.push(val);
         }
       });
       resolve && resolve(list);
     }//get value
-    
-    this.getRef().on('value', getValue );
+
+    this.getRef().on('value', getValue);
   }
 
-  deleteGame(game){
-    this.getRef().set({[game.gameId]: null});
+  deleteGame(game) {
+    this.getRef().set({ [game.gameId]: null });
   }
 
   newGame(game) {
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       // const gameId = this.firebaseDb.ref().child('gameList')
       const gameId = this.getRef().push().key;
       // const gameId = hash.sha1(hash.sha1(game));
       const newListItem = {
-        [gameId]: 
+        [gameId]:
           new GameState({
             gameId,
             boardSize: game.boardSize,
             createdAt: new Date().getTime(),
-            ['player'+game.player]: this.getUserId(),
+            ['player' + game.player]: this.getUserId(),
             name: game.name,
           }).toFBStorage()
       };
 
       this.getRef().update(newListItem).then(
-        () => resolve && resolve(gameId), 
+        () => resolve && resolve(gameId),
         (r) => reject && reject(r)
       );
     });
@@ -166,30 +165,30 @@ class GameAPIClass extends BaseAPIClass {
    * @param {string} type default is 'on'
    * @param {string} eventType default is 'value', could be "value", "child_added", "child_removed", "child_changed", or "child_moved".
    */
-  getGameState(gameId, resolve, reject, type='on', eventType='value') {
+  getGameState(gameId, resolve, reject, type = 'on', eventType = 'value') {
     const thenExec = (s) => {
       const val = s.val();
       // console.log('thenExec', val);
-      if( !!!val ) {
-        reject&&reject("Game not found");
+      if (!!!val) {
+        reject && reject("Game not found");
         return;
       }
       let gamestate = new GameState(val);
       if (gamestate === null || gamestate.error) {
-        reject&&reject('Game State error. ' + gamestate.error );
+        reject && reject('Game State error. ' + gamestate.error);
       } else {
-        resolve&&resolve(gamestate);
+        resolve && resolve(gamestate);
       }
     };
 
     const child = this.getRef().child(gameId);
-    if( type === 'on' ) {
+    if (type === 'on') {
       // const onn=child.on('value',
       //   (a,b)=>console.log('callback',a,b)
       // );
-      child.on(eventType, thenExec, reject );
+      child.on(eventType, thenExec, reject);
     } else {
-      child.once(eventType, thenExec, reject );
+      child.once(eventType, thenExec, reject);
     }
   }
 
@@ -199,10 +198,10 @@ class GameAPIClass extends BaseAPIClass {
    * @param {GameState} gameState 
    */
   setGameState(gameId, gameState) {
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const gs = new GameState(gameState).toFBStorage()
       const child = this.getRef().child(gameId);
-      child.update(gs, resolve).then(resolve, reject );
+      child.update(gs, resolve).then(resolve, reject);
     });
   }
 }

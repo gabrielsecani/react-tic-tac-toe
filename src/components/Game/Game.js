@@ -10,8 +10,8 @@ class Game extends React.Component {
 
   constructor(props) {
     super(props);
-    
-    this.gameId = (this.props.match&&this.props.match.params&&this.props.match.params.id);
+
+    this.gameId = (this.props.match && this.props.match.params && this.props.match.params.id);
     this.online = !!this.gameId;
 
     this.options = {
@@ -28,17 +28,17 @@ class Game extends React.Component {
     }
 
     // if (this.online||true) {
-      this.local_setState = this.setState;
-      this.setState = this.setGameState;
+    this.local_setState = this.setState;
+    this.setState = this.setGameState;
     // }
 
   }
 
-  setGameState(stt, callback=null, local=false) {
+  setGameState(stt, callback = null, local = false) {
     if (this.online && !local) {
       //update firebase and let it fire listener handle
       GameAPI.setGameState(this.gameId, stt)
-        .then( () => {
+        .then(() => {
           // console.log('Game.setGameState.then:done ',stt);
           this.setState(stt, callback, true);
         }, reason => {
@@ -46,9 +46,9 @@ class Game extends React.Component {
           alert("setGameState:" + reason);
         });
     } else {
-      if (callback){
+      if (callback) {
         this.local_setState(stt, callback);
-      }else{
+      } else {
         this.local_setState(stt);
       }
     }
@@ -60,7 +60,7 @@ class Game extends React.Component {
         this.authUid = firebaseAuth.currentUser.uid;
         v = this.checkPlayers(v);
 
-        if ( ! this.state.loaded_online) v.loaded_online = true;
+        if (!this.state.loaded_online) v.loaded_online = true;
 
         this.handleGameStateChange(v);
         // this.local_setState( {loaded_online: true} );
@@ -83,15 +83,15 @@ class Game extends React.Component {
     if (stt.playerX !== this.authUid && stt.playerO !== this.authUid) {
       if (!stt.playerX) {
         stt.playerX = this.authUid;
-        this.setState({playerX: stt.playerX});
-      } else 
-      if (!stt.playerO) {
+        this.setState({ playerX: stt.playerX });
+      } else
+        if (!stt.playerO) {
           stt.playerO = this.authUid;
-          this.setState({playerO: stt.playerO});
-      } else {
-        // set readonly, only if is an online game
-        stt.readonly = this.online;
-      }
+          this.setState({ playerO: stt.playerO });
+        } else {
+          // set readonly, only if is an online game
+          stt.readonly = this.online;
+        }
     }
 
     // getPlayerInfo
@@ -104,8 +104,8 @@ class Game extends React.Component {
   handleUserInfo(kind, user) {
     const userInfo = {}
     // console.log(kind, user, this.state);
-    Object.assign(userInfo, this.state['userInfo'+kind], user);
-    this.setGameState({['userInfo'+kind]: userInfo}, null, true);
+    Object.assign(userInfo, this.state['userInfo' + kind], user);
+    this.setGameState({ ['userInfo' + kind]: userInfo }, null, true);
     if (this.authUid === userInfo.authUid) {
       (new UserState(userInfo)).addGame(this.gameId);
     }
@@ -113,20 +113,20 @@ class Game extends React.Component {
 
   handleGameStateChange(stt) {
     // console.log('handleGameStateChange', stt);
-    this.local_setState( stt );
+    this.local_setState(stt);
   }
 
   calculateWinner(squares, size) {
     let lines = this.winnerLines;
-    if (!lines || lines.length !== (size*2+2)) {
+    if (!lines || lines.length !== (size * 2 + 2)) {
       lines = [];
       let col = [];
       let lin = [];
       // lines & columns
-      for (let i=0; i < size; i++){
-        for (let j=0; j < size; j++){
-          col = [...col, [(i*size)+j]];
-          lin = [...lin, [(j*size)+i]];
+      for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+          col = [...col, [(i * size) + j]];
+          lin = [...lin, [(j * size) + i]];
         }
         lines = [...lines, col, lin];
         col = [];
@@ -134,21 +134,21 @@ class Game extends React.Component {
       }
       //diagonal left->right
       //diagonal right->left
-      for (let i=0; i < size; i++){
-          col = [...col, [(i*size)+i]];
-          lin = [...lin, [(i*size)+(size-i)-1]];
+      for (let i = 0; i < size; i++) {
+        col = [...col, [(i * size) + i]];
+        lin = [...lin, [(i * size) + (size - i) - 1]];
       }
       lines = [...lines, col, lin];
       this.winnerLines = lines;
     }
-    
-    var empate=
-      (squares.length === size*size && size*size === this.stepNumber);
+
+    var empate =
+      (squares.length === size * size && size * size === this.stepNumber);
     if (empate)
       return "none";
-    var winner=null;
-    lines.some(line=>{
-      if (line.map(a=>squares[a]).every((current,i,arr)=>(current && arr[0]===current))){
+    var winner = null;
+    lines.some(line => {
+      if (line.map(a => squares[a]).every((current, i, arr) => (current && arr[0] === current))) {
         winner = squares[line[0]];
         return true;
       } else {
@@ -166,12 +166,12 @@ class Game extends React.Component {
     if (this.state.readonly) {
       return;
     }
-    if (this.state.stepNumber < this.state.history.length-1) {
-      alert("Game was set read-only when you change step before.\n Go to the last move (#"+(this.state.history.length-1)+") to back to the game!");
+    if (this.state.stepNumber < this.state.history.length - 1) {
+      alert("Game was set read-only when you change step before.\n Go to the last move (#" + (this.state.history.length - 1) + ") to back to the game!");
       return;
     }
     if (this.online) {
-      if (this.state['player'+this.nextPlayerSymbol()] !== this.authUid) {
+      if (this.state['player' + this.nextPlayerSymbol()] !== this.authUid) {
         alert("Is not your turn. Please, wait for the other player!\n\nCould be difficult for him.");
         return;
       }
@@ -189,7 +189,7 @@ class Game extends React.Component {
         squares: squares,
       }]),
       stepNumber: history.length,
-      boardSize: this.state.boardSize||3,
+      boardSize: this.state.boardSize || 3,
       winner,
     });
   }
@@ -201,13 +201,13 @@ class Game extends React.Component {
   }
 
   handleBoardSizeChange(event) {
-    this.setState({boardSize: parseInt(event.currentTarget.value, 10)})
+    this.setState({ boardSize: parseInt(event.currentTarget.value, 10) })
   }
 
   gototheGame(nextGameId) {
-    this.props.history.push('/play/'+this.state.nextGameId);
+    this.props.history.push('/play/' + this.state.nextGameId);
   }
-  
+
   startNewGame() {
     const newstate = {
       name: this.state.name,
@@ -215,16 +215,16 @@ class Game extends React.Component {
       player: this.whoami(),
     }
     GameAPI.newGame(newstate).then(
-      Id => 
+      Id =>
         this.setState(
-          { nextGameId: Id }, 
-          ()=>this.props.history.push('/play/'+Id)
+          { nextGameId: Id },
+          () => this.props.history.push('/play/' + Id)
         )
     );
   }
 
   whoami() {
-    return (this.authUid === this.state.playerO)?'O':(this.authUid === this.state.playerX)?'X':'observer';
+    return (this.authUid === this.state.playerO) ? 'O' : (this.authUid === this.state.playerX) ? 'X' : 'observer';
   }
 
   render() {
@@ -232,93 +232,93 @@ class Game extends React.Component {
     if (this.online && !this.state.loaded_online) {
       return (<section className="App-intro">
         <div>
-          Loading the online game... <br/>
+          Loading the online game... <br />
           Please wait!
         </div>
       </section>);
     }
 
-    if (this.state.boardSize<3) return (<div>Board size is less than minimal 3.</div>);
+    if (this.state.boardSize < 3) return (<div>Board size is less than minimal 3.</div>);
     const gameHistory = this.state.history;
     const current = gameHistory[this.state.stepNumber];
     //const winner = this.calculateWinner(current.squares, this.state.boardSize);
     const winner = this.state.winner || this.calculateWinner(current.squares, this.state.boardSize);
-    
+
     let status;
-    
+
     let isyou = (this.whoami() === this.nextPlayerSymbol());
-    
+
     if (winner) {
       status = 'Winner: ' + winner;
       isyou = !isyou;
     } else {
       status = 'Next player: ' + this.nextPlayerSymbol()
     }
-    let status2="";
+    let status2 = "";
     if (this.online) {
       if (isyou) {
-        status2 = winner?'You WIN! Congrats!':'Your turn';
+        status2 = winner ? 'You WIN! Congrats!' : 'Your turn';
       } else {
-        status2 = winner?'You loose, sorry...':'Other turn';
+        status2 = winner ? 'You loose, sorry...' : 'Other turn';
       }
     }
 
-    const Status= ()=> (<div className={`${winner?'winner':''}${isyou?'isyou':'isnotyou'}`}>{status}<br/>{status2}</div>);
+    const Status = () => (<div className={`${winner ? 'winner' : ''}${isyou ? 'isyou' : 'isnotyou'}`}>{status}<br />{status2}</div>);
 
     const moves = gameHistory.map((step, move) => {
       const desc = move ?
         'Go to move #' + move :
         'Go to game begin';
       return (
-        <li key={move}>        
+        <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
         </li>
       );
     });
 
     const BoardSizeSelect = () =>
-      (this.online)?
-        (<div>This is an online game</div>):
+      (this.online) ?
+        (<div>This is an online game</div>) :
         (<div>
           <label htmlFor="boardsize">Select board size: </label>
           <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)} value={this.state.boardSize}>{
-            Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
+            Array(4).fill(3).map((v, i) => v + i * 2).map(number => (
               <option key={number.toString()} value={number}>{number}</option>
-          ))}</select>
+            ))}</select>
         </div>);
 
-    const WhoAmIDiv = () => 
-      (this.online)?
-        (<div className="isyou">You are the: {this.whoami()}</div>):(<div/>)
+    const WhoAmIDiv = () =>
+      (this.online) ?
+        (<div className="isyou">You are the: {this.whoami()}</div>) : (<div />)
 
     const CreateOrFollow = () => (
-      winner?
-        this.state.nextGameId?
-          (<button onClick={()=> this.gototheGame(this.nextGameId)}>Go to the new game created?</button>)
-          : (<button onClick={()=> this.startNewGame(this)}>Start a new like this</button>)
-        : (<div/>)
+      winner ?
+        this.state.nextGameId ?
+          (<button onClick={() => this.gototheGame(this.nextGameId)}>Go to the new game created?</button>)
+          : (<button onClick={() => this.startNewGame(this)}>Start a new like this</button>)
+        : (<div />)
     );
-  
+
     const PlayerXO = (props) => {
       const kind = props.kind || '';
-      let user = this.state['userInfo'+kind];
-      if (!(user&&kind)) {
-        user = new UserState({name: "Player " + kind});
+      let user = this.state['userInfo' + kind];
+      if (!(user && kind)) {
+        user = new UserState({ name: "Player " + kind });
       } else {
-        user = new UserState( user );
+        user = new UserState(user);
       }
 
       return (<div className={`player ${this.nextPlayerSymbol() === kind ? 'isyou' : 'isnotyou'}`}>
-        <div className="image"><img src={user.photoURL} alt="O User"/></div>
+        <div className="image"><img src={user.photoURL} alt="O User" /></div>
         <div className="name">{user.name}</div>
         <div className="stats">{user.games_length()} games</div>
-      </div> )
+      </div>)
     }
 
     const PlayersConnected = () => (
       <div className="players">
-        <PlayerXO kind="X" user={this.state.userInfoX}/>
-        <PlayerXO kind="O" user={this.state.userInfoO}/>
+        <PlayerXO kind="X" user={this.state.userInfoX} />
+        <PlayerXO kind="O" user={this.state.userInfoO} />
       </div>
     );
 
@@ -327,34 +327,34 @@ class Game extends React.Component {
         <section className="App-intro">
           <div>
             To play online search for a match or then
-            <br/> start one below and have fun.
+            <br /> start one below and have fun.
           </div>
         </section>
         <section className="App-Game">
 
-          <BoardSizeSelect/>
+          <BoardSizeSelect />
 
-          <PlayersConnected/>
+          <PlayersConnected />
 
           <div className="game-board">
             <Board boardSize={this.state.boardSize}
               squares={current.squares}
               onClick={(i) => this.handleClick(i)}
-              />
-          </div><br/>
-          <WhoAmIDiv/><br/>
+            />
+          </div><br />
+          <WhoAmIDiv /><br />
           <div className="game-info">
-            <Status/>
-            <CreateOrFollow/>
-            {this.options.showHistory?(<div className="history">
+            <Status />
+            <CreateOrFollow />
+            {this.options.showHistory ? (<div className="history">
               <h3>History of game moves:</h3>
               <div>
-                {this.state.stepNumber>=1?<button onClick={() => this.jumpTo(this.state.stepNumber-1)}><i className="material-icons">navigate_before</i></button>:<div/>}
-                {this.state.stepNumber<gameHistory.length-1?<button onClick={() => this.jumpTo(this.state.stepNumber+1)}><i className="material-icons">navigate_next</i></button>:<div/>}
+                {this.state.stepNumber >= 1 ? <button onClick={() => this.jumpTo(this.state.stepNumber - 1)}><i className="material-icons">navigate_before</i></button> : <div />}
+                {this.state.stepNumber < gameHistory.length - 1 ? <button onClick={() => this.jumpTo(this.state.stepNumber + 1)}><i className="material-icons">navigate_next</i></button> : <div />}
               </div>
               <ol>{moves}</ol>
-              </div>
-              ):""}
+            </div>
+            ) : ""}
           </div>
         </section>
         <section className="App-Rules">

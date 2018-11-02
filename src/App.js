@@ -8,18 +8,18 @@ import { Link } from 'react-router-dom';
 import SignInScreen from './components/SignInScreen';
 import { firebaseAuth } from './components/Fire';
 
-function MenuList(props){
-  const routes=props.routes;
+function MenuList(props) {
+  const routes = props.routes;
   return (
     <ul>
-    {routes.filter(r=>!!r.display).map((r,i)=>(
-      <li key={i.toString()} ><Link to={r.path}>{r.display}</Link>
-      {r.routes?(
-        <ul>{r.routes.map((c,j)=>(<li key={i.toString()+j.toString()}><Link to={r.path+'/'+c.path}> {c.display}</Link></li>))}</ul>
-      ): ''}
-      </li>
-    ))}
-  </ul>);
+      {routes.filter(r => !!r.display).map((r, i) => (
+        <li key={i.toString()} ><Link to={r.path}>{r.display}</Link>
+          {r.routes ? (
+            <ul>{r.routes.map((c, j) => (<li key={i.toString() + j.toString()}><Link to={r.path + '/' + c.path}> {c.display}</Link></li>))}</ul>
+          ) : ''}
+        </li>
+      ))}
+    </ul>);
 }
 
 class AppHeader extends Component {
@@ -30,26 +30,26 @@ class AppHeader extends Component {
 
   render() {
     return (
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to Tic Tac Toe App</h1>
-          <nav>
-            <MenuList routes={routes}/>
-          </nav>
-          <section className="App-login">
-            <SignInScreen firebaseAuth={firebaseAuth} onAuthStateChanged={this.handleAuthStateChange.bind(this)}/>
-          </section>
-        </header>
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <h1 className="App-title">Welcome to Tic Tac Toe App</h1>
+        <nav>
+          <MenuList routes={routes} />
+        </nav>
+        <section className="App-login">
+          <SignInScreen firebaseAuth={firebaseAuth} onAuthStateChanged={this.handleAuthStateChange.bind(this)} />
+        </section>
+      </header>
     );
   }
 }
 
-const NoAuth=()=>(<section className="App-intro">Please do login so have a sit with and have fun!</section>);
+const NoAuth = () => (<section className="App-intro">Please do login then have a sit with and have fun!</section>);
 
 class App extends Component {
   render() {
     return (<div>
-      { (!!!firebaseAuth.currentUser) ? <SwitchRouting AppHeader={AppHeader}/> : <NoAuth/> }
+      {(!!!firebaseAuth.currentUser) ? <SwitchRouting AppHeader={AppHeader} /> : <NoAuth />}
     </div>);
   }
 }

@@ -2,7 +2,7 @@ import { firebaseDb } from '../../Fire';
 
 class BaseAPIClass {
 
-  constructor(){
+  constructor() {
     this.firebaseDb = firebaseDb;
     this.refURL = '/';
   }
@@ -10,8 +10,8 @@ class BaseAPIClass {
   /**
    * return a promise that resolve (.then()) in a time
    * @param {Integer} time in miliseconds
-   */  
-  sleep (time) {
+   */
+  sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
   }
 
@@ -51,8 +51,8 @@ class BaseAPIClass {
    * Reference of firebase path
   */
   getRef() {
-    if(!this.ref)
-      this.ref = firebaseDb.ref(this.refURL||'/');
+    if (!this.ref)
+      this.ref = firebaseDb.ref(this.refURL || '/');
     return this.ref;
   }
 

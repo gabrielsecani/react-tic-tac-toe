@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Square(props){
+function Square(props) {
   return (
     <button className={`square player${props.value}`} onClick={props.onClick}>
       {props.value}
@@ -15,13 +15,13 @@ class Board extends React.Component {
       onClick={() => this.props.onClick(i)}
     />;
   }
-     
+
   renderB(arrayIDs, handleRender) {
     return arrayIDs.map(
-      (value,index,roArr) => handleRender(value, index, roArr)
+      (value, index, roArr) => handleRender(value, index, roArr)
     );
   }
-   
+
   // renderColumns(rowidx, size) {
   //   let ret=[];
   //   for(let i=0; i<size; i++){
@@ -29,7 +29,7 @@ class Board extends React.Component {
   //   }
   //   return (ret);
   // }
-  
+
   // renderBoard(size) {
   //   let ret=[];
   //   for(let i=0; i<size; i++){
@@ -39,7 +39,7 @@ class Board extends React.Component {
   //   }
   //   return ret;
   // }
-   
+
   render() {
     const size = parseInt(this.props.boardSize || 3, 10);
     const arr = [...Array(size).fill(0)];
@@ -47,8 +47,8 @@ class Board extends React.Component {
       <div className="board">
         {this.renderB(arr, ((value, rowidx) => (
           <div className="board-row" key={rowidx}>
-            {this.renderB(arr, (value, colidx) => 
-              this.renderSquare(colidx+(rowidx*size)))}
+            {this.renderB(arr, (value, colidx) =>
+              this.renderSquare(colidx + (rowidx * size)))}
           </div>)))}
       </div>)
   }

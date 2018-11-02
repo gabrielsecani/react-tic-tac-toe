@@ -5,21 +5,21 @@ import GameAPI from './api/GameAPI';
 import '../Game/Game.css';
 
 class Tempo {
-  constructor(timems){
-    this.tempoTimeout=null;
+  constructor(timems) {
+    this.tempoTimeout = null;
     this.timeMs = timems;
   }
 
-  run(timems, params=null) {
+  run(timems, params = null) {
     const timeMs = timems || this.timeMs;
-    if(this.tempoTimeout) {
+    if (this.tempoTimeout) {
       // console.log('Tempo:: timeout cancelled!', this.tempoTimeout);
       clearTimeout(this.tempoTimeout);
     }
     return new Promise(resolve => {
-      this.tempoTimeout = setTimeout((params)=>{
+      this.tempoTimeout = setTimeout((params) => {
         // console.log('Tempo:: hit!');
-        if(resolve) resolve.apply(null, params);
+        if (resolve) resolve.apply(null, params);
         // if(this.tempoTimeout) clearTimeout(this.tempoTimeout);
       }, timeMs, params);
       // console.log('Tempo:: timeout has began!', this.tempoTimeout, timeMs);      
@@ -28,10 +28,10 @@ class Tempo {
 }
 
 class Search extends React.Component {
-  
+
   constructor(props) {
     super(props);
-    
+
     this.state = {
       gameList: "Loading...",
       dayFilter: 2,
@@ -52,32 +52,32 @@ class Search extends React.Component {
     const gameSearchName = this.searchRef.value;
 
     GameAPI.getGameList(list => {
-      const dayFilter = (new Date().getTime()) - (this.state.dayFilter * 1000*60*60*24);
-      
-      let filteredList = (gameSearchName === "") ? list:
-        list.filter(g=>(g.name||'').toUpperCase().indexOf(gameSearchName.toUpperCase())>=0);
+      const dayFilter = (new Date().getTime()) - (this.state.dayFilter * 1000 * 60 * 60 * 24);
 
-      filteredList = filteredList.filter(g => (g.createdAt >= dayFilter) );
+      let filteredList = (gameSearchName === "") ? list :
+        list.filter(g => (g.name || '').toUpperCase().indexOf(gameSearchName.toUpperCase()) >= 0);
+
+      filteredList = filteredList.filter(g => (g.createdAt >= dayFilter));
       // order by createdAt
       filteredList = filteredList.sort(
-        (a,b) => ( (a.playersConnected-b.playersConnected)*1000000 + (a.createdAt-b.createdAt)*1000 + (a.history.length-b.history.length) ) 
+        (a, b) => ((a.playersConnected - b.playersConnected) * 1000000 + (a.createdAt - b.createdAt) * 1000 + (a.history.length - b.history.length))
       );
 
-      if(Array.isArray(filteredList)&& filteredList.length===0) filteredList = 'No game found, try to search again';
+      if (Array.isArray(filteredList) && filteredList.length === 0) filteredList = 'No game found, try to search again';
       this.setState({
         gameList: filteredList,
       });
-    }, 
-    rejct => {
-      console.log(rejct);
-    });
+    },
+      rejct => {
+        console.log(rejct);
+      });
   }
 
   onSearch(e) {
     // buscar no firebase por jogos disponiveis
     // search on firebase for available games
-    const tms=(e&&e.target&& parseInt(e.target.attributes.delay.value,10))||100;
-    this.tempo.run(tms).then(()=> {
+    const tms = (e && e.target && parseInt(e.target.attributes.delay.value, 10)) || 100;
+    this.tempo.run(tms).then(() => {
       // console.log('executing doSearchGame', this.searchRef.value);
       this.doSearchGame();
     });
@@ -86,12 +86,12 @@ class Search extends React.Component {
 
   handleSelectGame(item) {
     //get the game selected on filling the player left
-    this.props.history.push('/play/'+item.gameId);
+    this.props.history.push('/play/' + item.gameId);
   }
 
-  handleDayFilterChange(event){
-    this.setState({dayFilter: event.target.value})
-    this.tempo.run(300).then(()=>
+  handleDayFilterChange(event) {
+    this.setState({ dayFilter: event.target.value })
+    this.tempo.run(300).then(() =>
       this.doSearchGame()
     )
   }
@@ -110,32 +110,32 @@ class Search extends React.Component {
     // }
 
     const GameList = () => (
-    <div className="game-list">
-      Games List
+      <div className="game-list">
+        Games List
       <ol>
-        {typeof this.state.gameList === 'string'?
-          (<li><div className="name">{this.state.gameList}</div></li>):
-          this.state.gameList.map( (list) =>
-            (<li key={list.gameId} onClick={this.handleSelectGame.bind(this, list)}>
-              <div className="item">
-                <div className="name">{list.name}</div>
-                <div className="row">
-                  <div className="many">{list.playersConnected||0} player{list.playersConnected===2?"s":""}</div>
-                  <div className="date">{list.createdAtString}</div>
-                  <div className="state">
-                    {(list.winner)?"Winner: "+list.winner:list.stepNumber+" move"+(list.stepNumber>1?"s":"")}
+          {typeof this.state.gameList === 'string' ?
+            (<li><div className="name">{this.state.gameList}</div></li>) :
+            this.state.gameList.map((list) =>
+              (<li key={list.gameId} onClick={this.handleSelectGame.bind(this, list)}>
+                <div className="item">
+                  <div className="name">{list.name}</div>
+                  <div className="row">
+                    <div className="many">{list.playersConnected || 0} player{list.playersConnected === 2 ? "s" : ""}</div>
+                    <div className="date">{list.createdAtString}</div>
+                    <div className="state">
+                      {(list.winner) ? "Winner: " + list.winner : list.stepNumber + " move" + (list.stepNumber > 1 ? "s" : "")}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </li>)
-          )}
-      </ol>
-    </div>)
-    
+              </li>)
+            )}
+        </ol>
+      </div>)
+
     return (
       <div className="game-search">
         <div className="telling">
-          Here you are! Well, to join some one game you need 
+          Here you are! Well, to join some one game you need
           to be logged so just tell me a game name on the
           box below and click on Search button right over there!
         </div>
@@ -157,12 +157,12 @@ class Search extends React.Component {
 
         <div>
           <input type="search" delay="1500" placeholder="Game Name to Search"
-            ref={el=>this.searchRef=el} onChange={this.onSearch.bind(this)} />
+            ref={el => this.searchRef = el} onChange={this.onSearch.bind(this)} />
           {/* <input value={this.state.gameSearchName} onChange={this.handleGameNameChange.bind(this)}/> */}
           <button value="Search" delay="10" onClick={this.onSearch.bind(this)}>Search</button>
         </div>
 
-        <GameList/>
+        <GameList />
 
       </div>
     );

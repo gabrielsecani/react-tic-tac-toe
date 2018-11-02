@@ -3,7 +3,7 @@ import GameAPI from './api/GameAPI';
 import '../Game/Game.css';
 
 class Create extends React.Component {
-  
+
   constructor(props) {
     super(props);
     this.state = {
@@ -12,23 +12,23 @@ class Create extends React.Component {
       player: 'X',
     }
   }
-  
-  handleNameChange(event){
+
+  handleNameChange(event) {
     // get the game selected on filling the player left
-    this.setState({name: event.target.value});
+    this.setState({ name: event.target.value });
   }
 
-  handleSelectPlayer(player){
-    this.setState({player});
+  handleSelectPlayer(player) {
+    this.setState({ player });
   }
 
   handleBoardSizeChange(event) {
     // console.log(this, event);
-    this.setState({boardSize: parseInt(event.currentTarget.value, 10)})
+    this.setState({ boardSize: parseInt(event.currentTarget.value, 10) })
   }
 
-  createGame(event){
-    GameAPI.newGame(this.state).then(Id => this.props.history.push('/play/'+Id));
+  createGame(event) {
+    GameAPI.newGame(this.state).then(Id => this.props.history.push('/play/' + Id));
     event.preventDefault();
   }
 
@@ -36,7 +36,7 @@ class Create extends React.Component {
     return (
       <div className="game-create">
         <div className="telling">
-          Here you are! Well, to join some one game you need 
+          Here you are! Well, to join some one game you need
           to be logged so just tell me a game name on the
           box below and click on Search button right over there!
         </div>
@@ -50,16 +50,16 @@ class Create extends React.Component {
           <div>
             <label htmlFor="boardsize">Select board size: </label>
             <select name="boardsize" onChange={this.handleBoardSizeChange.bind(this)}>{
-              Array(4).fill(3).map((v,i)=>v+i*2).map(number=>(
+              Array(4).fill(3).map((v, i) => v + i * 2).map(number => (
                 <option key={number.toString()} value={number}>{number}</option>
-            ))}</select>
+              ))}</select>
           </div>
-          
+
           <div>
-            <input type="radio" name="player" value="X" onChange={this.handleSelectPlayer.bind(this,'X')} checked={this.state.player==="X"}/>
-            <label onClick={this.handleSelectPlayer.bind(this,'X')} >X</label>
-            <input type="radio" name="player" value="O"  onChange={this.handleSelectPlayer.bind(this,'O')} checked={this.state.player==="O"}/>
-            <label onClick={this.handleSelectPlayer.bind(this,'O')} >O</label>
+            <input type="radio" name="player" value="X" onChange={this.handleSelectPlayer.bind(this, 'X')} checked={this.state.player === "X"} />
+            <label onClick={this.handleSelectPlayer.bind(this, 'X')} >X</label>
+            <input type="radio" name="player" value="O" onChange={this.handleSelectPlayer.bind(this, 'O')} checked={this.state.player === "O"} />
+            <label onClick={this.handleSelectPlayer.bind(this, 'O')} >O</label>
           </div>
           <button>Create a game</button>
         </form>

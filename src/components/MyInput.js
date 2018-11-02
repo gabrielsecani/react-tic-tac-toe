@@ -3,30 +3,30 @@ import React, { Component } from 'react';
 class MyInput extends Component {
   constructor(props) {
     super(props);
-    
+
     this.inputRef = null;
 
-    this.timer=null;
+    this.timer = null;
     this.properties = {
       delay: 2000,
     };
     this.onValueChange = props.onChange;
     this.state = { typed: '' };
-    
+
     Object.assign(this.properties, props);
-    
-    if (this.properties.onBlur) this.properties.onBlur=null;
-    if (this.properties.onChange) this.properties.onChange=null;
+
+    if (this.properties.onBlur) this.properties.onBlur = null;
+    if (this.properties.onChange) this.properties.onChange = null;
     if (props.onChange) this.onValueChange = props.onChange;
     if (props.value !== this.state.typed)
-      this.setState({typed: props.value})
+      this.setState({ typed: props.value })
   }
 
   handleOnBlur(event, value) {
     this.clearTimer();
     if (this.onValueChange)
       this.onValueChange(event, this.state.typed)
-    this.setState({typed: value, event: null});
+    this.setState({ typed: value, event: null });
   }
 
   clearTimer() {
@@ -40,21 +40,23 @@ class MyInput extends Component {
     event.persist();
     const value = event.target.value;
     debugger;
-    this.setState({typed: value, event});
-    this.timer = setTimeout( ()=> this.handleOnBlur(event, value), this.properties.delay);
+    this.setState({ typed: value, event });
+    this.timer = setTimeout(() => this.handleOnBlur(event, value), this.properties.delay);
   }
 
   render() {
-    if ( !this.state.event && this.state.typed !== this.props.value ) {
-      setTimeout( (() => {
-        this.setState({typed: this.props.value});
-        this.inputRef.value=this.props.value;
+    if (!this.state.event && this.state.typed !== this.props.value) {
+      setTimeout((() => {
+        this.setState({ typed: this.props.value });
+        this.inputRef.value = this.props.value;
       }), 100);
     }
-    
-    const p = Object.assign(this.properties, {value: this.state.typed,
-       onChange:this.handleOnChange.bind(this),
-       onBlur:this.handleOnBlur.bind(this)});
+
+    const p = Object.assign(this.properties, {
+      value: this.state.typed,
+      onChange: this.handleOnChange.bind(this),
+      onBlur: this.handleOnBlur.bind(this)
+    });
     return (<input {...p} ref={el => this.inputRef = el} />);
   }
 }

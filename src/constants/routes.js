@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, BrowserRouter, Redirect} from 'react-router-dom';
+import { Route, BrowserRouter, Redirect } from 'react-router-dom';
 import Loadable from 'react-loadable';
 import LoadingComponent from '../components/LoadingComponent';
 
@@ -22,27 +22,27 @@ const LoadableCreate = Loadable({
 // <Route path='*' component={NotFound}/>
 
 export const routes = [
-  { path: '/', exact: true, to:'search', display: '', render: ()=> (<Redirect to="search"/>) },
+  { path: '/', exact: true, to: 'search', display: '', render: () => (<Redirect to="search" />) },
   { path: '/game', display: 'Play Game alone', component: LoadableGame },
   { path: '/search', display: 'Search for Game', component: LoadableSearch },
   { path: '/new', display: 'Create a Game', component: LoadableCreate },
   { path: '/play/:id', display: '', component: LoadableGame },
 ];
 
-export const SwitchRouting = ({AppHeader}) => (
+export const SwitchRouting = ({ AppHeader }) => (
   <BrowserRouter>
     <div className="App">
-      <AppHeader/>
+      <AppHeader />
       <div>
-      {routes.map((route,i)=>(
+        {routes.map((route, i) => (
           <Route key={i} {...route}>
-          {route.childrens?(
-            <div>
-            {route.childrens.map(({path, c},j)=>(<Route key={j} path={route.path+'/'+c} {...c}></Route>)) }
-            </div>): ''}
+            {route.childrens ? (
+              <div>
+                {route.childrens.map(({ path, c }, j) => (<Route key={j} path={route.path + '/' + c} {...c}></Route>))}
+              </div>) : ''}
           </Route>
         ))}
       </div>
     </div>
   </BrowserRouter>
-  );
+);
