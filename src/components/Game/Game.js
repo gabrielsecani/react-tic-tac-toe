@@ -25,7 +25,9 @@ class Game extends React.Component {
         squares: [false],
       }],
       stepNumber: 0,
+      boardSize: 3,
     }
+    this._INITIAL_state = this.state;
 
     // if (this.online||true) {
     this.local_setState = this.setState;
@@ -223,8 +225,36 @@ class Game extends React.Component {
     );
   }
 
+  calcNextStep(current) {
+    if (this.online || this.readonly) return;
+    // if (this.whoami() !== this.nextPlayerSymbol()) return;
+    const max = (this.state.boardSize * this.state.boardSize);
+    let opts = [];
+    for (let i = 0; i <= max; i++) {
+      if (!current.squares[i]) {
+        opts.push(i);
+      }
+    }
+    for (let seek = 0; seek < opts.length; seek++) {
+      const rand = Math.floor(Math.random() * max) % opts.length;
+      const opt = opts[rand];
+      console.log(rand, opt, opts);
+      if (!current.squares[opt]) {
+        this.handleClick(opt);
+        return;
+      }
+    }
+    if (opts.length > 0)
+      setTimeout(this.calcNextStep(current), 300);
+  }
+
   whoami() {
     return (this.authUid === this.state.playerO) ? 'O' : (this.authUid === this.state.playerX) ? 'X' : 'observer';
+  }
+
+  handleClickAutoPlay({ kind, user }) {
+    user.autoPlay = !user.autoPlay;
+    this.setState({ ['userInfo' + kind]: user });
   }
 
   render() {
@@ -252,7 +282,11 @@ class Game extends React.Component {
       status = 'Winner: ' + winner;
       isyou = !isyou;
     } else {
-      status = 'Next player: ' + this.nextPlayerSymbol()
+      if (this.state.stepNumber === this.state.boardSize * this.state.boardSize) {
+        status = 'Tied';
+      } else {
+        status = 'Next player: ' + this.nextPlayerSymbol()
+      }
     }
     let status2 = "";
     if (this.online) {
@@ -291,36 +325,55 @@ class Game extends React.Component {
       (this.online) ?
         (<div className="isyou">You are the: {this.whoami()}</div>) : (<div />)
 
-    const CreateOrFollow = () => (
-      winner ?
-        this.state.nextGameId ?
-          (<button onClick={() => this.gototheGame(this.nextGameId)}>Go to the new game created?</button>)
-          : (<button onClick={() => this.startNewGame(this)}>Start a new like this</button>)
-        : (<div />)
-    );
+    const CreateOrFollow = () => {
+      if (!this.online && this.state.stepNumber === this.state.boardSize * this.state.boardSize) {
+        return (<button onClick={() => this.setState(this._INITIAL_state)}>Restart this game</button>);
+      }
+      if (!winner) return <div />;
+      if (this.online) {
+        if (this.state.nextGameId)
+          return (<button onClick={() => this.gototheGame(this.nextGameId)}>Go to the new game created?</button>);
+        else {
 
-    const PlayerXO = (props) => {
-      const kind = props.kind || '';
-      let user = this.state['userInfo' + kind];
+          return (<button onClick={() => this.startNewGame(this)}>Start a new like this</button>);
+        }
+      } else {
+        return (<button onClick={() => this.setState(this._INITIAL_state)}>Restart this game</button>);
+      }
+    }
+
+    const PlayerXO = ({ kind, state }) => {
+      let user = state['userInfo' + kind];
       if (!(user && kind)) {
         user = new UserState({ name: "Player " + kind });
       } else {
         user = new UserState(user);
       }
-
       return (<div className={`player ${this.nextPlayerSymbol() === kind ? 'isyou' : 'isnotyou'}`}>
-        <div className="image"><img src={user.photoURL} alt="O User" /></div>
+        <div className="image"><img src={user.photoURL} alt="User" /></div>
         <div className="name">{user.name}</div>
         <div className="stats">{user.games_length()} games</div>
+        <div className="stats">
+          <input id={`AutoPlay${kind}`} checked={user.autoPlay} onChange={this.handleClickAutoPlay.bind(this, { kind, user })} type="checkbox" />
+          <label htmlFor={`AutoPlay${kind}`}>AI Player</label>
+        </div>
       </div>)
     }
 
-    const PlayersConnected = () => (
+    const PlayersConnected = (props) => (
       <div className="players">
-        <PlayerXO kind="X" user={this.state.userInfoX} />
-        <PlayerXO kind="O" user={this.state.userInfoO} />
+        <PlayerXO kind="X" {...props} />
+        <PlayerXO kind="O" {...props} />
       </div>
     );
+
+    // Calc next step when not online, but waiting a while
+    if (!winner) {
+      const u = this.state['userInfo' + this.nextPlayerSymbol()];
+      if (u && u.autoPlay) {
+        setTimeout(this.calcNextStep.bind(this, current), 550);
+      }
+    }
 
     return (
       <div className="game">
@@ -334,7 +387,7 @@ class Game extends React.Component {
 
           <BoardSizeSelect />
 
-          <PlayersConnected />
+          <PlayersConnected state={this.state} />
 
           <div className="game-board">
             <Board boardSize={this.state.boardSize}
