@@ -97,20 +97,25 @@ class Game extends React.Component {
     }
 
     // getPlayerInfo
-    UserAPI.getUserState(stt.playerX, (user) => this.handleUserInfo('X', user));
-    UserAPI.getUserState(stt.playerO, (user) => this.handleUserInfo('O', user));
+    if (stt.playerX)
+      UserAPI.getUserState(stt.playerX, (user) => this.handleUserInfo('X', user));
+    if (stt.playerO)
+      UserAPI.getUserState(stt.playerO, (user) => this.handleUserInfo('O', user));
 
     return stt;
   }
 
   handleUserInfo(kind, user) {
     const userInfo = {}
-    // console.log(kind, user, this.state);
-    Object.assign(userInfo, this.state['userInfo' + kind], user);
+    if (user.userId) {
+      if (!user.equals(userInfo)) {
+        Object.assign(userInfo, this.state['userInfo' + kind], user);
 
-    this.setState({ ['userInfo' + kind]: userInfo }, null, true);
-    if (this.authUid === userInfo.authUid) {
-      (new UserState(userInfo)).addGame(this.gameId);
+        this.setState({ ['userInfo' + kind]: userInfo }, null, true);
+        if (this.authUid === userInfo.userId) {
+          (new UserState(userInfo)).addGame(this.gameId);
+        }
+      }
     }
   }
 
@@ -174,9 +179,11 @@ class Game extends React.Component {
       return;
     }
     if (this.online) {
-      if (this.state['player' + this.nextPlayerSymbol()] !== this.authUid) {
-        alert("Is not your turn. Please, wait for the other player!\n\nCould be difficult for him.");
-        return;
+      if (!this.state['userInfo' + this.nextPlayerSymbol()].autoPlay) {
+        if (this.state['player' + this.nextPlayerSymbol()] !== this.authUid) {
+          alert("Is not your turn. Please, wait for the other player!\n\nCould be difficult for him.");
+          return;
+        }
       }
     }
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
@@ -227,8 +234,11 @@ class Game extends React.Component {
   }
 
   calcNextStep(current) {
-    if (this.online || this.readonly) return;
-    // if (this.whoami() !== this.nextPlayerSymbol()) return;
+    // stop autoplay from playing for a sitted user
+    if (this.state['userInfo' + this.nextPlayerSymbol()].userId) return;
+    //stop for readonly game
+    if (this.state.readonly) return;
+
     const max = (this.state.boardSize * this.state.boardSize);
     let opts = [];
     for (let i = 0; i <= max; i++) {
@@ -271,12 +281,10 @@ class Game extends React.Component {
       <div className="image"><img src={user.photoURL} alt="User" /></div>
       <div className="name">{user.name}</div>
       <div className="stats">{user.games_length()} games</div>
-      {(!user.userId) ?
-        <div className="stats">
-          <input id={'AutoPlay' + kind} checked={user.autoPlay} onChange={this.handleClickAutoPlay.bind(this, { kind, user })} type="checkbox" />
-          <label htmlFor={'AutoPlay' + kind}>AI Player</label>
-        </div> : ""
-      }
+      <div className="stats">
+        <input id={'AutoPlay' + kind} checked={user.autoPlay} onChange={this.handleClickAutoPlay.bind(this, { kind, user })} type="checkbox" />
+        <label htmlFor={'AutoPlay' + kind}>AI Player</label>
+      </div>
     </div>
   }
 

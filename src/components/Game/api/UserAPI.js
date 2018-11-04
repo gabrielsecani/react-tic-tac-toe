@@ -56,6 +56,12 @@ class UserState {
     }
     return this;
   }
+
+  equals(compareTo) {
+    return (this.userId === compareTo.userId) &&
+      (this.name === compareTo.name) &&
+      (this.games.length === compareTo.games.length);
+  }
 }
 
 class UserAPIClass extends BaseAPIClass {
@@ -76,7 +82,7 @@ class UserAPIClass extends BaseAPIClass {
    */
   getUserState(userId, resolve, reject = null, type = 'on', eventType = 'value') {
     if (!userId) {
-      return resolve(new UserState({ name: '' }));
+      return resolve(new UserState({ name: 'No User' }));
     }
     if (!resolve) resolve = (m) => console.info('UserAPI::getUserState().resolve', m);
     if (!reject) reject = (m) => console.info('UserAPI::getUserState().reject', m);
