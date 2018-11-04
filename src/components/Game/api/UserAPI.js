@@ -35,9 +35,7 @@ class UserState {
    */
   toFBStorage() {
     const obj = {};
-    if (this.userId !== undefined) obj.userId = this.userId || null;
     if (this.name !== undefined) obj.name = this.name || '';
-    if (this.authtype !== undefined) obj.authtype = this.authtype || null;
     if (this.games !== undefined) obj.games = this.games || [];
     if (this.photoURL !== undefined) obj.photoURL = this.photoURL;
     return obj;
@@ -49,11 +47,11 @@ class UserState {
 
   addGame(gameId) {
     if (!Array.isArray(this.games)) this.games = [];
-    const oldlen = this.games_length();
+    const actuallength = this.games_length();
     if (!this.games.find(a => a && a === gameId)) {
       this.games.push(gameId);
     }
-    if (oldlen !== this.games_length()) {
+    if (actuallength !== this.games_length()) {
       UserAPI.setUserState(this);
     }
     return this;
@@ -90,7 +88,7 @@ class UserAPIClass extends BaseAPIClass {
         reject({ code: 404, msg: "User not found" });
         return;
       }
-      let userstate = new UserState(val);
+      let userstate = new UserState({ userId, ...val });
       if (userstate === null || userstate.error) {
         reject({ code: 404, msg: 'User State error. ' + userstate.error });
       } else {

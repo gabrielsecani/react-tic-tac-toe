@@ -88,7 +88,7 @@ class GameState {
     if (this.nextGame !== undefined) obj.nextGame = this.nextGame || null;
     if (this.boardSize !== undefined) obj.boardSize = this.boardSize || null;
     if (this.createdAt !== undefined) obj.createdAt = this.createdAt || null;
-    if (this.gameId !== undefined) obj.gameId = this.gameId || null;
+    // if (this.gameId !== undefined) obj.gameId = this.gameId || null;
     if (this.name !== undefined) obj.name = this.name || null;
     if (this.winner !== undefined) obj.winner = this.winner || null;
     if (this.playerO !== undefined) obj.playerO = this.playerO || null;
@@ -173,7 +173,7 @@ class GameAPIClass extends BaseAPIClass {
         reject && reject("Game not found");
         return;
       }
-      let gamestate = new GameState(val);
+      let gamestate = new GameState({ gameId, ...val });
       if (gamestate === null || gamestate.error) {
         reject && reject('Game State error. ' + gamestate.error);
       } else {
@@ -194,13 +194,12 @@ class GameAPIClass extends BaseAPIClass {
 
   /**
    * upload game state to firebase db
-   * @param {string} gameId 
    * @param {GameState} gameState 
    */
-  setGameState(gameId, gameState) {
+  setGameState(gameState) {
     return new Promise((resolve, reject) => {
       const gs = new GameState(gameState).toFBStorage()
-      const child = this.getRef().child(gameId);
+      const child = this.getRef().child(gameState.gameId);
       child.update(gs, resolve).then(resolve, reject);
     });
   }
