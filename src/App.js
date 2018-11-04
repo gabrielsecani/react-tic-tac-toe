@@ -26,7 +26,7 @@ class AppHeader extends Component {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Welcome to Tic Tac Toe Game App</h1>
-        <h5>Version: 0.1.1</h5>
+        <h5>Version: 0.1.2</h5>
         <nav>
           <MenuList />
         </nav>
