@@ -39,7 +39,7 @@ class Game extends React.Component {
   setGameState(stt, callback = null, local = false) {
     if (this.online && !local) {
       //update firebase and let it fire listener handle
-      GameAPI.setGameState(this.gameId, stt)
+      GameAPI.setGameState(Object.assign(this.state, stt))
         .then(() => {
           // console.log('Game.setGameState.then:done ',stt);
           this.setState(stt, callback, true);
@@ -107,7 +107,8 @@ class Game extends React.Component {
     const userInfo = {}
     // console.log(kind, user, this.state);
     Object.assign(userInfo, this.state['userInfo' + kind], user);
-    this.setGameState({ ['userInfo' + kind]: userInfo }, null, true);
+
+    this.setState({ ['userInfo' + kind]: userInfo }, null, true);
     if (this.authUid === userInfo.authUid) {
       (new UserState(userInfo)).addGame(this.gameId);
     }
@@ -257,6 +258,37 @@ class Game extends React.Component {
     this.setState({ ['userInfo' + kind]: user });
   }
 
+  PlayerXO({ kind }) {
+    let user = this.state['userInfo' + kind];
+    if (!(user && kind)) {
+      user = new UserState({ name: "Player " + kind });
+    } else {
+      user = new UserState(user);
+    }
+
+    const cssclass = 'player ' + (this.nextPlayerSymbol() === kind ? 'isyou' : 'isnotyou');
+    return <div className={cssclass}>
+      <div className="image"><img src={user.photoURL} alt="User" /></div>
+      <div className="name">{user.name}</div>
+      <div className="stats">{user.games_length()} games</div>
+      {(!user.userId) ?
+        <div className="stats">
+          <input id={'AutoPlay' + kind} checked={user.autoPlay} onChange={this.handleClickAutoPlay.bind(this, { kind, user })} type="checkbox" />
+          <label htmlFor={'AutoPlay' + kind}>AI Player</label>
+        </div> : ""
+      }
+    </div>
+  }
+
+  PlayersConnected() {
+    return (
+      <div className="players">
+        {this.PlayerXO({ kind: "X" })}
+        {this.PlayerXO({ kind: "O" })}
+      </div>
+    );
+  }
+
   render() {
 
     if (this.online && !this.state.loaded_online) {
@@ -342,31 +374,6 @@ class Game extends React.Component {
       }
     }
 
-    const PlayerXO = ({ kind, state }) => {
-      let user = state['userInfo' + kind];
-      if (!(user && kind)) {
-        user = new UserState({ name: "Player " + kind });
-      } else {
-        user = new UserState(user);
-      }
-      return (<div className={`player ${this.nextPlayerSymbol() === kind ? 'isyou' : 'isnotyou'}`}>
-        <div className="image"><img src={user.photoURL} alt="User" /></div>
-        <div className="name">{user.name}</div>
-        <div className="stats">{user.games_length()} games</div>
-        <div className="stats">
-          <input id={`AutoPlay${kind}`} checked={user.autoPlay} onChange={this.handleClickAutoPlay.bind(this, { kind, user })} type="checkbox" />
-          <label htmlFor={`AutoPlay${kind}`}>AI Player</label>
-        </div>
-      </div>)
-    }
-
-    const PlayersConnected = (props) => (
-      <div className="players">
-        <PlayerXO kind="X" {...props} />
-        <PlayerXO kind="O" {...props} />
-      </div>
-    );
-
     // Calc next step when not online, but waiting a while
     if (!winner) {
       const u = this.state['userInfo' + this.nextPlayerSymbol()];
@@ -387,7 +394,7 @@ class Game extends React.Component {
 
           <BoardSizeSelect />
 
-          <PlayersConnected state={this.state} />
+          {this.PlayersConnected()}
 
           <div className="game-board">
             <Board boardSize={this.state.boardSize}
