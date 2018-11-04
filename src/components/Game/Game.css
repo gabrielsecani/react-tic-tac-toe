@@ -93,11 +93,15 @@
 .isyou {
   color: green;
 }
-.players .isyou::before{
-  content: 'Turn of';
-}
 .isnotyou {
   opacity: 0.45;
+}
+
+.players .isyou::before{
+  content: 'Playing';
+}
+.players .isnotyou::before{
+  content: 'waiting';
 }
 
 .winnerisyou,
